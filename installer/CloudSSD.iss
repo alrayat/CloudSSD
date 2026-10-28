@@ -2,7 +2,7 @@
 ; Built by build-release.ps1:
 ;   Built by installer/build-release.ps1 with the selected CloudSSD version.
 #ifndef AppVersion
-  #define AppVersion "1.0.0"
+  #define AppVersion "1.0.1"
 #endif
 #ifndef SourceDir
   #define SourceDir "..\dist\CloudSSD-" + AppVersion + "-win-x64"
@@ -18,11 +18,11 @@
 AppId={{D4B47FD5-C7E0-4614-931C-3C38A68F9916}
 AppName=CloudSSD
 AppVersion={#AppVersion}
-AppVerName=CloudSSD {#AppVersion} Preview
+AppVerName=CloudSSD {#AppVersion}
 AppPublisher=CloudSSD
 VersionInfoVersion={#AppVersion}
 VersionInfoProductName=CloudSSD
-VersionInfoDescription=CloudSSD Preview Setup
+VersionInfoDescription=CloudSSD Setup
 DefaultDirName={localappdata}\Programs\CloudSSD
 DefaultGroupName=CloudSSD
 DisableProgramGroupPage=yes
@@ -199,7 +199,7 @@ end;
 function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;
 begin
   Result := MemoDirInfo + NewLine + NewLine +
-    'Preview build: game compatibility and cloud speed vary. Smooth gameplay from uncached files is not guaranteed.' + NewLine + NewLine;
+    'Game compatibility and cloud speed vary. Smooth gameplay from uncached files is not guaranteed.' + NewLine + NewLine;
   if MemoTasksInfo <> '' then Result := Result + MemoTasksInfo + NewLine + NewLine;
   if WinFspInstalled() then
     Result := Result + 'WinFsp (virtual drive driver): already installed'

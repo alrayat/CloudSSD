@@ -28,7 +28,9 @@ Markdown (`.md`) files explain how to use, build and maintain CloudSSD. They are
 | [Contributing](../CONTRIBUTING.md) | Safe source development and packaging |
 | [Security](../SECURITY.md) | Credential protection and private reporting |
 | [Product licensing](../LICENSE) | License status; new product terms await the owner |
-| [GitHub setup](GITHUB_SETUP.md) | Source review, new remote and owner-controlled publication |
+| [GitHub setup](GITHUB_SETUP.md) | Repository layout, source review and contribution workflow |
+| [Release publication](RELEASING.md) | Versioning, source archives, checksums and GitHub publication |
+| [Changelog](../CHANGELOG.md) | Release changes and migration notes |
 | [Component notices](../THIRD_PARTY_NOTICES.md) | Required source and vendor licensing |
 
 Portable releases include current guides, native patch sources and required notices. Developer commands run from the source checkout. Generated private logs, test results and benchmark outputs are not public product documentation. Find the active profile through **Settings → Open data folder**.

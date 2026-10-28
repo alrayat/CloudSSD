@@ -27,7 +27,7 @@ The release requires the pinned modified rclone driver. Preserve upstream licens
 # PowerShell 7.4+, existing Go/archive, fresh extraction directory:
 & '.\installer\build-native.ps1' -GoExe go -BuildDirectory '.\.work\native-build' -Install
 # Select an unused version:
-& '.\installer\build-release.ps1' -Version 1.0.0
+& '.\installer\build-release.ps1' -Version 1.0.1
 ```
 
 The native helper produces a candidate and hash. `-Install` requires the candidate to match the recorded checksum. See the native guide before reviewing a different toolchain build or changing the pin. The default command includes Go vet; `-SkipVet` must be disclosed separately from runtime test results.
@@ -35,6 +35,8 @@ The native helper produces a candidate and hash. `-Install` requires the candida
 Release packaging checks the driver, runs unit tests, publishes desktop/CLI/agent self-contained binaries, includes current documentation/notices and runs CLI dependency checks. It creates a ZIP/checksum and optionally an installer EXE when its compiler exists. Existing versions are preserved. Publisher credentials require explicit `-IncludePublisherCredentials`; inspect packages before distribution and do not upload without authorization.
 
 ## Review
+
+See [release publication](docs/RELEASING.md) for source archives, checksums, GitHub draft uploads and final verification.
 
 - Preserve actual services and state; do not substitute demo data for production features.
 - Keep cache cleanup guarded, dirty uploads/saves safe and normal launcher/ownership/anti-cheat behavior intact.

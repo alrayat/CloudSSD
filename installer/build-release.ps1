@@ -7,7 +7,7 @@
 #>
 param(
     [string]$Configuration = "Release",
-    [string]$Version = "1.0.0",
+    [string]$Version = "1.0.1",
     [string]$WinFspVersion = "2.1.25156",
     [switch]$SkipTests,
     [switch]$IncludePublisherCredentials

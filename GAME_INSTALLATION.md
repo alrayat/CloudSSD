@@ -25,4 +25,4 @@ Google Drive verification can use checksums/sizes. TeraBox size-only checks offe
 
 Direct Steam/other launcher installation on cloud storage is not accepted as reliable support. Install locally and import appropriate games, or keep launcher-dependent games local. CloudSSD does not change launcher ownership, DRM or anti-cheat. Patch locally and import again; changed files/parts can be re-uploaded.
 
-The current source fixture import hashes and byte-verifies ten files, resumes, launches the demo with exit 0 and completes guarded shutdown. Native revision `.2` and the source fix are required; the existing 1.0.0 ZIP still has the teardown issue. No real-provider import or commercial game acceptance is claimed. See [compatibility](GAME_COMPATIBILITY.md) and [tests](TEST_REPORT.md).
+The current source fixture import hashes and byte-verifies ten files, resumes, launches the demo with exit 0 and completes guarded shutdown. CloudSSD 1.0.1 includes native revision `.2` and the source fix. No real-provider import or commercial game acceptance is claimed. See [compatibility](GAME_COMPATIBILITY.md) and [tests](TEST_REPORT.md).

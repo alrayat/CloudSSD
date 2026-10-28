@@ -1,6 +1,6 @@
 # Publish CloudSSD source on GitHub
 
-This folder contains the application projects, tests, native patch sources, assets, current guides, dependency notices and source checks. It uses a fresh local Git repository on `main`. No GitHub repository or upload is created automatically.
+The application repository is [alrayat/CloudSSD](https://github.com/alrayat/CloudSSD), with development on `main`. It contains the application projects, tests, native patch sources, assets, current guides, dependency notices and source checks. Release source archives are exported from the release tag rather than the local working directory.
 
 ## Source layout
 
@@ -26,15 +26,16 @@ Run `python scripts/check-source.py` and inspect `git status`. Generated output,
 
 The root LICENSE records that new product terms have not been supplied. Choose terms for your original contributions before advertising a new product license. Included-source and vendor rights continue to apply. A source upload must retain the required notices.
 
-## Create the remote
+## Clone and contribute
 
-Create an empty GitHub repository named **CloudSSD** in your chosen account, then use its actual URL:
+Clone the source repository, or fork it first to contribute through a pull request:
 
 ```powershell
-git remote add origin https://github.com/YOUR-ACCOUNT/CloudSSD.git
-git push -u origin main
+git clone https://github.com/alrayat/CloudSSD.git
+cd CloudSSD
+python .\scripts\check-source.py
 ```
 
-These are instructions for the owner; no push has been executed by preparing this source folder. GitHub Actions checks source safety, the Windows solution build and unit tests when triggered. Native/WinFsp, desktop and live-provider acceptance have separate requirements in [TEST_REPORT.md](../TEST_REPORT.md).
+GitHub Actions checks source safety, the Windows solution build and unit tests for pushes to `main` and pull requests. Native/WinFsp, desktop and live-provider acceptance have separate requirements in [TEST_REPORT.md](../TEST_REPORT.md).
 
-Upload compiled release archives to GitHub Releases only after review. Keep them out of the source commit. The source distribution requires the native build step for a working virtual drive; see [native setup](NATIVE_RCLONE.md).
+The [1.0.1 release](https://github.com/alrayat/CloudSSD/releases/tag/v1.0.1) distributes a Windows application ZIP, matching tagged source ZIP and checksums. Keep compiled archives out of source commits. Maintainers should follow [release publication](RELEASING.md), including successful CI, draft asset verification and owner authorization. The source distribution requires the native build step for a working virtual drive; see [native setup](NATIVE_RCLONE.md).

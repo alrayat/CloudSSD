@@ -14,7 +14,7 @@ Executed on Windows 11 x64 on 2026-10-28 using .NET SDK 10.0.402, runtime 10.0.1
 | Final affected integration run | 25 passed; 0 failed/skipped; includes import/readiness/shutdown and two-write crash recovery |
 | Production publish | Desktop, CLI and Agent self-contained win-x64 ReadyToRun publish passed |
 | Published-folder dependency check | Passed; final native engine copied and dependency smoke repeated |
-| Local portable package | 1.0.1 win-x64 ZIP built from the selected source; not uploaded to GitHub |
+| Portable package | 1.0.1 win-x64 ZIP built from the selected source; native checksum and package contents verified |
 | Source audit | Passed; required source attribution retained separately |
 
 ## Bugs corrected
@@ -41,7 +41,7 @@ The WPF harness loads all eight pages and eleven dialog views, saves/reloads set
 
 Mouse-driven title-bar dragging, double-click and edge resizing were **not exercised**. Live OAuth and WebView2 sign-in were not exercised. Hybrid symbolic-link privileges were unavailable, so the full Hybrid game-flow test was excluded; no privilege settings were changed. Inno Setup was absent: **no setup EXE was built or install-tested**. Clean-PC install/upgrade/uninstall, actual Windows reboot/logon and sleep/resume remain unverified. New product license terms are pending.
 
-The existing GitHub **v1.0.0 ZIP** still contains native revision `.1` and has not been replaced. This report documents corrected source, local production publishing and local 1.0.1 ZIP packaging, not a new downloadable GitHub release. That existing ZIP retains the import-shutdown issue and the sync limitation. Packaging used `-SkipTests` after the separate 155-test unit run and the final integration run passed.
+CloudSSD **v1.0.1** includes this source and native revision `.2`. Release assets include the Windows package, an archive of the tagged source and SHA-256 checksums. Source and Windows archives are audited separately; the source ZIP excludes built executables, profiles and credentials. Packaging can use `-SkipTests` when the separate unit and relevant integration runs have already passed. Release preparation also repeats the solution build and unit suite after updating version metadata.
 
 ## Native identity
 

@@ -4,13 +4,14 @@
 
 CloudSSD connects cloud folders to a Windows drive letter and caches the files you read on a local NTFS disk. Games and applications run on your own PC. Files already cached can be read locally; uncached files still depend on your internet connection and cloud provider.
 
-**Current release: CloudSSD 1.0.0 for Windows x64.**
+**Current release: CloudSSD 1.0.1 for Windows x64.**
 
-- [Download the Windows application ZIP](https://github.com/alrayat/CloudSSD/releases/download/v1.0.0/CloudSSD-1.0.0-win-x64.zip)
-- [Release page and checksum file](https://github.com/alrayat/CloudSSD/releases/tag/v1.0.0)
+- [Download the Windows application ZIP](https://github.com/alrayat/CloudSSD/releases/download/v1.0.1/CloudSSD-1.0.1-win-x64.zip)
+- [Download the source archive](https://github.com/alrayat/CloudSSD/releases/download/v1.0.1/CloudSSD-1.0.1-source.zip)
+- [Release page, notes and checksums](https://github.com/alrayat/CloudSSD/releases/tag/v1.0.1) · [Changelog](CHANGELOG.md)
 - [User guide](docs/USER_GUIDE.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Known limitations](KNOWN_LIMITATIONS.md)
 
-Download **CloudSSD-1.0.0-win-x64.zip** under the release's **Assets**. It contains **CloudSSD.exe**, an installation script and the application binaries. GitHub's **Source code (zip)** and **Code → Download ZIP** contain development files, not an installed application. This project currently provides a Windows package; no Android APK or setup EXE is available.
+Download **CloudSSD-1.0.1-win-x64.zip** under the release's **Assets**. It contains **CloudSSD.exe**, an installation script and the application binaries. **CloudSSD-1.0.1-source.zip**, GitHub's **Source code (zip)** and **Code → Download ZIP** contain development files, not an installed application. This project currently provides a Windows package; no Android APK or setup EXE is available.
 
 ## Contents
 
@@ -43,7 +44,7 @@ Cache space is real local disk space. A cloud drive's reported capacity does not
 
 ## Install CloudSSD
 
-1. Download [CloudSSD-1.0.0-win-x64.zip](https://github.com/alrayat/CloudSSD/releases/download/v1.0.0/CloudSSD-1.0.0-win-x64.zip).
+1. Download [CloudSSD-1.0.1-win-x64.zip](https://github.com/alrayat/CloudSSD/releases/download/v1.0.1/CloudSSD-1.0.1-win-x64.zip).
 2. Install **WinFsp** from its official site if it is not already installed. Its system driver installation may request administrator permission. Install WebView2 only if you need TeraBox website sign-in and the runtime is missing.
 3. Right-click the downloaded ZIP and choose **Extract All**. Keep the complete folder structure, including `tools`, `docs` and the files beside `CloudSSD.exe`. Do not run the app from inside the ZIP or copy only the EXE.
 4. Open the extracted folder and double-click **Install.cmd**.
@@ -63,17 +64,13 @@ After extracting the complete release and installing the required prerequisites,
 
 ### Verify the download
 
-Download the `.sha256` asset from the release page. In PowerShell, from the folder containing the ZIP, run:
+Download `SHA256SUMS.txt` from the release page. It contains checksums for the Windows and source ZIPs. In PowerShell, from the folder containing the ZIP, run:
 
 ```powershell
-Get-FileHash .\CloudSSD-1.0.0-win-x64.zip -Algorithm SHA256
+Get-FileHash .\CloudSSD-1.0.1-win-x64.zip -Algorithm SHA256
 ```
 
-For the published **1.0.0** ZIP, the expected SHA-256 is:
-
-```text
-5b6416ed5ea5429e7a56f3098820776d63529672e4c0379d68d347dd87a3cc72
-```
+Compare the complete hash with the `CloudSSD-1.0.1-win-x64.zip` line in `SHA256SUMS.txt`. A mismatch means the download should not be used.
 
 ## First launch
 
@@ -84,7 +81,7 @@ For the published **1.0.0** ZIP, the expected SHA-256 is:
 5. Open **Diagnostics** and resolve missing prerequisites before mounting a drive.
 6. Connect an account on **Cloud Drives**, then confirm the mounted drive in File Explorer.
 
-Use **Settings → Open data folder** to find the active profile. The published 1.0.0 build defaults to `%LOCALAPPDATA%\CloudSSD`. It stores settings, the library, access profiles, logs and protected credentials there; a custom cache folder can be elsewhere. Changes in Settings require **Save settings**.
+Use **Settings → Open data folder** to find the active profile. The published build defaults to `%LOCALAPPDATA%\CloudSSD`. It stores settings, the library, access profiles, logs and protected credentials there; a custom cache folder can be elsewhere. Changes in Settings require **Save settings**.
 
 ## Connect cloud storage
 
@@ -183,18 +180,18 @@ For a portable copy, safely close the app and its mounts before removing the ext
 | Google sign-in fails | Use your own OAuth client and check Drive API/consent configuration in the setup guide. |
 | Hybrid mode reports symbolic-link failure | Use another execution mode, or enable the required Windows privileges yourself. |
 | Cold launch is slow | Check actual provider speed. Prepare/cache data or use Full Local with enough local space. |
-| Drive is busy or import cannot unmount | Close readers, wait for uploads and retry. The published 1.0.0 ZIP has an import-shutdown issue; current source contains the fix. |
+| Drive is busy or import cannot unmount | Close readers, wait for uploads and retry. Update to 1.0.1 or later for the import-shutdown and sparse-write fixes. |
 | Disk space is low | Review cache budget/reserve and staging usage. Keep pending-upload data; use the app's guarded cleanup. |
 
 See [detailed troubleshooting](docs/TROUBLESHOOTING.md). Export a sanitized report from Diagnostics when reporting a problem; keep credentials and private profiles out of issues.
 
 ## Release status and verification
 
-CloudSSD 1.0.0 is published as a regular GitHub release. Its existing ZIP uses native engine revision `.1` and has not been replaced by the source fixes described below.
+CloudSSD 1.0.1 includes the import-shutdown and sparse-write fixes with native engine revision `.2`. The Windows package and source archive correspond to the same release tag; see [release notes](CHANGELOG.md).
 
 The source fix uses native engine revision `.2` to identify retained files and distinguish inactive executable mappings from active readers. The demo import, byte verification, resume, launch and guarded shutdown test now passes. Regression tests cover ordinary readers and memory-mapped files in both the app process and another process. Automatic power actions use the same readiness checks; pending uploads and unknown status still block them. See [the test report](TEST_REPORT.md) for the complete verification results and boundaries.
 
-Revision `.2` also fixes native filesystem sync so explicit flushes persist local sparse-range metadata. A worker-crash regression verifies that two flushed writes survive pause, repair and restore with exact bytes. Build current source to get these fixes; the published 1.0.0 ZIP remains unchanged.
+Revision `.2` also fixes native filesystem sync so explicit flushes persist local sparse-range metadata. A worker-crash regression verifies that two flushed writes survive pause, repair and restore with exact bytes. The Windows 1.0.1 package and current source both include these fixes.
 
 Live cloud-account authentication, commercial gameplay, general app/browser installation, clean-PC installation/upgrade/uninstall, Windows reboot/logon, sleep/resume and mouse-driven window drag/edge resize still need verification. Go vet was not verified. New product license terms are pending. These are separate from whether the application compiles successfully. See [the test report](TEST_REPORT.md) and [build status](BUILD_STATUS.md) for the exact boundaries.
 
