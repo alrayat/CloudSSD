@@ -25,6 +25,8 @@ func TestCloudSSDStatsDoesNotWaitForBusyItem(t *testing.T) {
 	}
 	item.mu.Unlock()
 	require.Equal(t, 1, stats["openFiles"])
+	require.Equal(t, []string{"busy-file"}, stats["openFilePaths"])
 	require.NoError(t, item.Close(nil))
 	require.Equal(t, 0, c.Stats()["openFiles"])
+	require.Empty(t, c.Stats()["openFilePaths"])
 }

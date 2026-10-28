@@ -104,7 +104,7 @@ public sealed record CoreStats(long Bytes, double Speed, long Errors, bool Retry
 
 /// <summary>Parsed rclone vfs/stats.</summary>
 public sealed record VfsStats(long DiskBytesUsed, int Files, int ErroredFiles, bool OutOfSpace, int UploadsInProgress, int UploadsQueued,
-    int InUse, string? CachePath, string? MetaPath, int? OpenFiles = null)
+    int InUse, string? CachePath, string? MetaPath, int? OpenFiles = null, IReadOnlyList<string>? OpenFilePaths = null)
 {
     public static VfsStats Parse(JsonNode n)
     {
@@ -119,6 +119,7 @@ public sealed record VfsStats(long DiskBytesUsed, int Files, int ErroredFiles, b
             n["inUse"]?.GetValue<int>() ?? 0,
             d?["path"]?.GetValue<string>(),
             d?["pathMeta"]?.GetValue<string>(),
-            d?["openFiles"]?.GetValue<int>());
+            d?["openFiles"]?.GetValue<int>(),
+            d?["openFilePaths"] is JsonArray paths ? paths.Select(p => p!.GetValue<string>()).ToArray() : null);
     }
 }

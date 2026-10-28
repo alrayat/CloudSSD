@@ -161,6 +161,84 @@ public sealed class TeraBoxChunkedDriveTests(ITestOutputHelper output) : IAsyncL
     }
 
     [Fact]
+    public async Task Ordinary_reader_blocks_unmount_even_when_its_program_runs_from_local_disk()
+    {
+        if (!TestEnv.WinFspAvailable) return;
+        await using var mount = await MountAsync(Path.Combine(_root, "ordinary-reader-cache"));
+        var name = mount.P("document.bin");
+        var bytes = new byte[65536]; new Random(914).NextBytes(bytes);
+        await File.WriteAllBytesAsync(name, bytes);
+        using (var reader = new FileStream(name, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+        {
+            Assert.True((await mount.Service.StatsAsync(mount.Session.Id))?.OpenFiles > 0);
+            Assert.False(await mount.Service.IsReadyForShutdownAsync(mount.Session.Id));
+            var error = await Assert.ThrowsAsync<InvalidOperationException>(() => mount.Service.UnmountAsync(mount.Session.Id, TimeSpan.Zero));
+            Assert.Contains("open", error.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(MountState.Mounted, mount.Session.State);
+            var read = new byte[bytes.Length]; reader.ReadExactly(read);
+            Assert.Equal(bytes, read);
+        }
+        await mount.Service.UnmountAsync(mount.Session.Id, TimeSpan.FromSeconds(10));
+        Assert.Equal(MountState.Stopped, mount.Session.State);
+    }
+
+    [Fact]
+    public async Task Mapped_view_blocks_unmount_after_its_original_file_handle_closes()
+    {
+        if (!TestEnv.WinFspAvailable) return;
+        await using var mount = await MountAsync(Path.Combine(_root, "mapped-reader-cache"));
+        var name = mount.P("mapped.dll");
+        var bytes = new byte[65536]; new Random(915).NextBytes(bytes);
+        await File.WriteAllBytesAsync(name, bytes);
+        var mapping = System.IO.MemoryMappedFiles.MemoryMappedFile.CreateFromFile(name, FileMode.Open, null, 0, System.IO.MemoryMappedFiles.MemoryMappedFileAccess.Read);
+        using (var view = mapping.CreateViewAccessor(0, bytes.Length, System.IO.MemoryMappedFiles.MemoryMappedFileAccess.Read))
+        {
+            mapping.Dispose();
+            Assert.True((await mount.Service.StatsAsync(mount.Session.Id))?.OpenFiles > 0);
+            Assert.False(await mount.Service.IsReadyForShutdownAsync(mount.Session.Id));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => mount.Service.UnmountAsync(mount.Session.Id, TimeSpan.Zero));
+            var read = new byte[bytes.Length]; view.ReadArray(0, read, 0, read.Length);
+            Assert.Equal(bytes, read);
+            Assert.Equal(MountState.Mounted, mount.Session.State);
+        }
+        await mount.Service.UnmountAsync(mount.Session.Id, TimeSpan.FromSeconds(10));
+        Assert.Equal(MountState.Stopped, mount.Session.State);
+    }
+
+    [Fact]
+    public async Task Mapped_view_in_another_process_blocks_unmount_until_that_process_exits()
+    {
+        if (!TestEnv.WinFspAvailable) return;
+        await using var mount = await MountAsync(Path.Combine(_root, "external-mapped-cache"));
+        var name = mount.P("external.dll");
+        await File.WriteAllBytesAsync(name, new byte[65536]);
+        var ready = Path.Combine(_root, "mapping-ready");
+        var stop = Path.Combine(_root, "mapping-stop");
+        var script = "$m=[IO.MemoryMappedFiles.MemoryMappedFile]::CreateFromFile('" + name.Replace("'", "''") + "');" +
+            "$v=$m.CreateViewAccessor();$m.Dispose();[IO.File]::WriteAllText('" + ready.Replace("'", "''") + "','ready');" +
+            "while(-not [IO.File]::Exists('" + stop.Replace("'", "''") + "')){Start-Sleep -Milliseconds 100};$v.Dispose()";
+        using var process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("powershell.exe",
+            "-NoProfile -NonInteractive -EncodedCommand " + Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(script)))
+            { UseShellExecute = false, CreateNoWindow = true })!;
+        try
+        {
+            var deadline = DateTime.UtcNow.AddSeconds(30);
+            while (!File.Exists(ready) && !process.HasExited && DateTime.UtcNow < deadline) await Task.Delay(100);
+            Assert.True(File.Exists(ready), "The test mapping process did not become ready.");
+            Assert.False(await mount.Service.IsReadyForShutdownAsync(mount.Session.Id));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => mount.Service.UnmountAsync(mount.Session.Id, TimeSpan.Zero));
+            Assert.Equal(MountState.Mounted, mount.Session.State);
+        }
+        finally
+        {
+            File.WriteAllText(stop, "stop");
+            await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(30));
+        }
+        await mount.Service.UnmountAsync(mount.Session.Id, TimeSpan.FromSeconds(10));
+        Assert.Equal(MountState.Stopped, mount.Session.State);
+    }
+
+    [Fact]
     public async Task Slow_cold_recovery_leaves_capacity_for_new_download_uploads()
     {
         if (!TestEnv.WinFspAvailable) return;
@@ -276,6 +354,8 @@ public sealed class TeraBoxChunkedDriveTests(ITestOutputHelper output) : IAsyncL
             try
             {
                 writer.Position = 1024 * 1024; writer.Write(patch); writer.Flush(true);
+                // A later flushed write must persist its range too, while the original handle stays open.
+                writer.Position = 3 * 1024 * 1024; writer.Write(patch); writer.Flush(true);
                 using var worker = System.Diagnostics.Process.GetProcessById(first.Session.ProcessId!.Value);
                 worker.Kill(); await worker.WaitForExitAsync();
             }
@@ -292,6 +372,7 @@ public sealed class TeraBoxChunkedDriveTests(ITestOutputHelper output) : IAsyncL
         }
         saved.Restore(); Assert.Empty(saved.All());
         var expected = (byte[])original.Clone(); patch.CopyTo(expected, 1024 * 1024);
+        patch.CopyTo(expected, 3 * 1024 * 1024);
         await using (var resumed = await MountAsync(cache))
             Assert.Equal(expected, await File.ReadAllBytesAsync(resumed.P(relative)));
     }

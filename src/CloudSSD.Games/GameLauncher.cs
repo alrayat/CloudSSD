@@ -209,8 +209,9 @@ public sealed class GameLauncher
             var file = Path.Combine(_diagnosticsDir, $"launch-{s.Game.Id}-{s.Started:yyyyMMdd-HHmmss}.json");
             File.WriteAllText(file, JsonSerializer.Serialize(diag, JsonSettingsStore.Options));
         }
-        catch (IOException) { }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
         s.Tracker?.Dispose();
+        s.Process.Dispose();
         Ended?.Invoke(s, diag);
         return diag;
     }

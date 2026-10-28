@@ -22,6 +22,6 @@
   <ItemGroup>
     <Resource Include="Assets\cloudssd.ico" />
     <None Include="..\..\tools\rclone\rclone.exe" Link="tools\rclone\rclone.exe" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\tools\rclone\rclone.exe')" />
-    <None Include="..\..\tools\rclone\SHA256SUMS.cloudssd.1" Link="tools\rclone\SHA256SUMS.cloudssd.1" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\tools\rclone\SHA256SUMS.cloudssd.1')" />
+    <None Include="..\..\tools\rclone\SHA256SUMS.cloudssd.2" Link="tools\rclone\SHA256SUMS.cloudssd.2" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\tools\rclone\SHA256SUMS.cloudssd.2')" />
   </ItemGroup>
 </Project>

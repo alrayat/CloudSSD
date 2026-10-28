@@ -1,3 +1,18 @@
+diff --git a/cmd/cmount/fs.go b/cmd/cmount/fs.go
+--- a/cmd/cmount/fs.go
++++ b/cmd/cmount/fs.go
+@@ -485,6 +485,9 @@
+ // Fsync synchronizes file contents.
+ func (fsys *FS) Fsync(path string, datasync bool, fh uint64) (errc int) {
+ 	defer log.Trace(path, "datasync=%v, fh=0x%X", datasync, fh)("errc=%d", &errc)
+-	// This is a no-op for rclone
+-	return 0
++	handle, errc := fsys.getHandle(fh)
++	if errc != 0 {
++		return errc
++	}
++	return translateError(handle.Sync())
+ }
 diff --git a/vfs/vfscache/cache.go b/vfs/vfscache/cache.go
 index ca79f22..397468f 100644
 --- a/vfs/vfscache/cache.go
@@ -66,17 +81,20 @@ index ca79f22..397468f 100644
  	}
  
  	// load in the cache and metadata off disk
-@@ -169,6 +171,13 @@ func (c *Cache) Stats() (out rc.Params) {
+@@ -169,6 +171,16 @@ func (c *Cache) Stats() (out rc.Params) {
  	out["erroredFiles"] = len(c.errItems)
  	out["bytesUsed"] = c.used
  	out["outOfSpace"] = c.outOfSpace
 +	openFiles := 0
-+	for _, item := range c.item {
++	openFilePaths := []string{}
++	for name, item := range c.item {
 +		if item.openCount.Load() > 0 {
 +			openFiles++
++			openFilePaths = append(openFilePaths, name)
 +		}
 +	}
 +	out["openFiles"] = openFiles
++	out["openFilePaths"] = openFilePaths
  
  	return out
  }

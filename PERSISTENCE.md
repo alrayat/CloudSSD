@@ -14,4 +14,4 @@ Turning permanence off removes startup registration once no permanent drives rem
 
 Use the CLI's `agent status`, `agent release` and `agent stop` commands to inspect, hand over or request graceful shutdown. Close readers and wait for uploads before stopping; do not force-kill the native driver to dismiss a warning.
 
-Local registration/agent/handoff checks have passed. Actual Windows reboot/logon, sign-out upload drain, sleep/resume and visibility from elevated programs remain unverified in the current acceptance run. The fixture import still reported four open files during teardown. See [TEST_REPORT.md](TEST_REPORT.md) and [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md).
+Local registration/agent/handoff checks have passed. Actual Windows reboot/logon, sign-out upload drain, sleep/resume and visibility from elevated programs remain unverified in the current acceptance run. Current source and native revision `.2` pass fixture import teardown and share safe readiness checks with automatic power actions; the published 1.0.0 ZIP remains unchanged. See [TEST_REPORT.md](TEST_REPORT.md) and [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md).

@@ -18,7 +18,7 @@ This folder contains the application projects, tests, native patch sources, asse
 
 Local `.work/`, `bin/`, `obj/`, `dist/`, credentials and downloaded executables are excluded. The source archive contains the committed source tree, without Git internals or local output.
 
-CloudSSD uses its own project namespaces, `cloudssd-cli.exe`, `CloudSSD.Agent.exe`, `%LOCALAPPDATA%\CloudSSD` profile, `cloudssd.db` library, protected secrets, control pipes, bridge endpoints and installer identity. Provider-configured account roots remain user-controlled. The modified native driver is identified as `v1.75.2-cloudssd.1`.
+CloudSSD uses its own project namespaces, `cloudssd-cli.exe`, `CloudSSD.Agent.exe`, `%LOCALAPPDATA%\CloudSSD` profile, `cloudssd.db` library, protected secrets, control pipes, bridge endpoints and installer identity. Provider-configured account roots remain user-controlled. The modified native driver is identified as `v1.75.2-cloudssd.2`.
 
 ## Review before upload
 

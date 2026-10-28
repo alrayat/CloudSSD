@@ -1,7 +1,9 @@
 # CloudSSD build status
 
-CloudSSD is an experimental WPF/.NET 10 Windows x64 application. The Release solution build passed with **0 warnings and 0 errors**. Self-contained Desktop, CLI and Agent publishing, the packaged dependency check and the **1.0.0 portable ZIP** succeeded.
+The source selected for commit builds in Release with **0 warnings and 0 errors**. **155 unit tests** and **79 real WPF desktop checks** pass. Desktop, CLI and Agent self-contained win-x64 ReadyToRun publishing, the dependency smoke check and local **1.0.1 portable ZIP** packaging pass.
 
-Verification passed **153 unit tests**, **79 desktop checks**, **24 selected integration tests** and four native runtime packages. **One integration test failed** during import shutdown; Go vet and setup EXE installation were not verified. See [TEST_REPORT.md](TEST_REPORT.md) for evidence and exact boundaries.
+The import/verify/resume/launch/guarded-shutdown test passes. New reader and mapped-file regressions protect active users, and automatic power actions share the safe readiness check. A broad integration run passed 57 of 58 cases and exposed a native sync defect; the strengthened two-write crash-recovery test fails before the fix and passes afterward. The final affected integration run passes **25 cases with no failures or skips**. See [TEST_REPORT.md](TEST_REPORT.md).
 
-Live provider authentication, commercial gameplay, browser/general application installation, Windows reboot/logon, sleep/resume and installer installation require separate acceptance. No universal support claim is made.
+Native engine identity is **v1.75.2-cloudssd.2**. Four native runtime packages pass with vet disabled; Go vet remains unverified. The existing GitHub **1.0.0 ZIP** still contains revision `.1` and has not been replaced by these source fixes.
+
+Live cloud accounts, commercial games, browser/general application installation, Hybrid privileges, clean-PC installation, Windows reboot/logon and sleep/resume require separate acceptance. Inno Setup is absent; no setup EXE was built or install-tested. See the test report for exact coverage and remaining limits.

@@ -183,16 +183,18 @@ For a portable copy, safely close the app and its mounts before removing the ext
 | Google sign-in fails | Use your own OAuth client and check Drive API/consent configuration in the setup guide. |
 | Hybrid mode reports symbolic-link failure | Use another execution mode, or enable the required Windows privileges yourself. |
 | Cold launch is slow | Check actual provider speed. Prepare/cache data or use Full Local with enough local space. |
-| Drive is busy or import cannot unmount | Close readers, wait for uploads and retry. This release has a known import-shutdown issue. |
+| Drive is busy or import cannot unmount | Close readers, wait for uploads and retry. The published 1.0.0 ZIP has an import-shutdown issue; current source contains the fix. |
 | Disk space is low | Review cache budget/reserve and staging usage. Keep pending-upload data; use the app's guarded cleanup. |
 
 See [detailed troubleshooting](docs/TROUBLESHOOTING.md). Export a sanitized report from Diagnostics when reporting a problem; keep credentials and private profiles out of issues.
 
 ## Release status and verification
 
-CloudSSD 1.0.0 is published as a regular GitHub release. The verification below records its tested coverage and remaining issues.
+CloudSSD 1.0.0 is published as a regular GitHub release. Its existing ZIP uses native engine revision `.1` and has not been replaced by the source fixes described below.
 
-The recorded verification passed the production build, **153 unit tests**, **79 desktop checks**, **24 selected integration tests** and four native runtime packages. **One demo-import test failed at shutdown:** file verification, resume and launch succeeded, but the driver still reported four open files and refused to unmount. The safe-unmount guard remains enabled.
+The source fix uses native engine revision `.2` to identify retained files and distinguish inactive executable mappings from active readers. The demo import, byte verification, resume, launch and guarded shutdown test now passes. Regression tests cover ordinary readers and memory-mapped files in both the app process and another process. Automatic power actions use the same readiness checks; pending uploads and unknown status still block them. See [the test report](TEST_REPORT.md) for the complete verification results and boundaries.
+
+Revision `.2` also fixes native filesystem sync so explicit flushes persist local sparse-range metadata. A worker-crash regression verifies that two flushed writes survive pause, repair and restore with exact bytes. Build current source to get these fixes; the published 1.0.0 ZIP remains unchanged.
 
 Live cloud-account authentication, commercial gameplay, general app/browser installation, clean-PC installation/upgrade/uninstall, Windows reboot/logon, sleep/resume and mouse-driven window drag/edge resize still need verification. Go vet was not verified. New product license terms are pending. These are separate from whether the application compiles successfully. See [the test report](TEST_REPORT.md) and [build status](BUILD_STATUS.md) for the exact boundaries.
 
@@ -227,7 +229,7 @@ python .\scripts\check-source.py
 
 If needed, set `DOTNET_ROOT` to your installed SDK directory. The helpers also check `%USERPROFILE%\.dotnet` and the SDK on PATH. Source downloads exclude built binaries and credential files.
 
-The native helper verifies the pinned upstream archive, applies the included patch, runs native tests and builds `v1.75.2-cloudssd.1`. `-Install` requires the binary to match the recorded checksum. Different Go versions can change the hash; review and test a candidate before updating its checksum. The normal command retains Go vet. See [native build instructions](docs/NATIVE_RCLONE.md) for compiler, candidate-install and `-SkipVet` details.
+The native helper verifies the pinned upstream archive, applies the included patch, runs native tests and builds `v1.75.2-cloudssd.2`. `-Install` requires the binary to match the recorded checksum. Different Go versions can change the hash; review and test a candidate before updating its checksum. The normal command retains Go vet. See [native build instructions](docs/NATIVE_RCLONE.md) for compiler, candidate-install and `-SkipVet` details.
 
 ### Checks and packaging
 

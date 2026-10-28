@@ -56,4 +56,4 @@ to re-read listed folders. Imports refresh only the affected folder.
 
 CloudSSD uses a modified rclone v1.75.2 driver: deferred hydration moves partly cached dirty-file completion into write-back, while durable metadata and hashed local recovery snapshots protect staging data. Recovery copies/staging consume local space beyond ordinary cache eviction targets. They are not automatically applied over Steam or silently deleted. [Native details](docs/NATIVE_RCLONE.md) describe the native safety mechanisms.
 
-Offline and integrity statements refer to bounded fixture tests, not every provider failure. Selected native/filesystem checks passed; the TeraBox import test failed during open-file teardown. See [current evidence](TEST_REPORT.md).
+Offline and integrity statements refer to bounded fixture tests, not every provider failure. Current source and native revision `.2` pass TeraBox import and guarded teardown while preserving active-reader and mapped-file guards. The published 1.0.0 ZIP remains unchanged. See [current evidence](TEST_REPORT.md).

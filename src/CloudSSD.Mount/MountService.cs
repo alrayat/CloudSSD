@@ -426,14 +426,35 @@ public sealed class RcloneMountService : IAsyncDisposable
         var session = Get(id);
         if (session?.Process is { } process && MountSession.SafeHasExited(process)) return;
         // Windows and the VFS can retain a handle briefly after the application closes it.
-        // Allow that close to settle, but never unmount while the driver still reports an open file.
+        // Allow that close to settle. Only verified inactive image mappings may outlive the driver handles.
         var elapsed = Stopwatch.StartNew();
         while (await StatsAsync(id, ct) is { OpenFiles: > 0 } stats)
         {
             if (elapsed.Elapsed >= TimeSpan.FromSeconds(10))
+            {
+                if (session != null && await CanReleaseInactiveImagesAsync(session, stats, ct)) return;
                 throw new InvalidOperationException($"{stats.OpenFiles} file(s) are open on {session?.DriveLetter}:. Pause Steam downloads and close running games before repairing, unmounting or updating the drive.");
+            }
             await Task.Delay(250, ct);
         }
+    }
+
+    /// <summary>Read-only readiness check shared with automatic power actions; unknown status is never considered idle.</summary>
+    public async Task<bool> IsReadyForShutdownAsync(string id, CancellationToken ct = default)
+    {
+        var session = Get(id);
+        var stats = await StatsAsync(id, ct);
+        if (session is not { State: MountState.Mounted } || stats?.OpenFiles == null ||
+            stats.UploadsInProgress + stats.UploadsQueued > 0 || stats.ErroredFiles > 0 || stats.OutOfSpace) return false;
+        return stats.OpenFiles == 0 || await CanReleaseInactiveImagesAsync(session, stats, ct);
+    }
+
+    private static async Task<bool> CanReleaseInactiveImagesAsync(MountSession session, VfsStats stats, CancellationToken ct)
+    {
+        if (stats.UploadsInProgress + stats.UploadsQueued > 0 || stats.ErroredFiles > 0 || stats.OutOfSpace ||
+            stats.OpenFilePaths is not { Count: > 0 } files || files.Count != stats.OpenFiles) return false;
+        try { return await BoundedFileSystem.Shared.RunAsync(() => ClosedImageFiles.CanRelease(session.Root, files), TimeSpan.FromSeconds(5), ct); }
+        catch (TimeoutException) { return false; }
     }
 
     /// <summary>

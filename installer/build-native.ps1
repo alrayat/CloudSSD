@@ -56,7 +56,7 @@ try {
         $testArgs += @('./vfs', './vfs/vfscache', './vfs/vfscache/writeback', './vfs/vfscache/downloaders', '-count=1', '-timeout=180s')
         & $GoExe @testArgs
         if ($LASTEXITCODE -ne 0) { throw 'Native regression tests failed.' }
-        & $GoExe build -tags cmount -trimpath -buildvcs=false -ldflags '-s -w -X github.com/rclone/rclone/fs.Version=v1.75.2-cloudssd.1' -o rclone.exe .
+        & $GoExe build -tags cmount -trimpath -buildvcs=false -ldflags '-s -w -X github.com/rclone/rclone/fs.Version=v1.75.2-cloudssd.2' -o rclone.exe .
         if ($LASTEXITCODE -ne 0) { throw 'Native build failed.' }
     } finally { Pop-Location }
     $candidate = Join-Path $source 'rclone.exe'
@@ -65,7 +65,7 @@ try {
     Write-Host "Candidate: $candidate; SHA256: $hash. Verify real-mount workflows before installing."
     if ($Install) {
         $toolDir = Join-Path $repo 'tools\rclone'
-        $checksumPath = Join-Path $toolDir 'SHA256SUMS.cloudssd.1'
+        $checksumPath = Join-Path $toolDir 'SHA256SUMS.cloudssd.2'
         if (-not $UpdateChecksum) {
             if (-not (Test-Path -LiteralPath $checksumPath)) { throw 'No pinned binary checksum. Review the candidate and explicitly select UpdateChecksum for the first pin.' }
             $expectedHash = ((Get-Content -LiteralPath $checksumPath | Select-Object -First 1) -split '\s+')[0]

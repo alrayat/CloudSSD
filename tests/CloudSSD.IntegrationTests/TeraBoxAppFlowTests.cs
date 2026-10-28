@@ -156,6 +156,10 @@ public sealed class TeraBoxAppFlowTests(ITestOutputHelper output)
             output.WriteLine($"Played imported game from T:: exit {diag.ExitCode}, load {r.GetProperty("loadMs").GetDouble():0} ms, root {r.GetProperty("root")}");
             Assert.False(diag.LikelyFailure);
             Assert.StartsWith(host.Mounts.Get(def.Id)!.Root, r.GetProperty("root").GetString(), StringComparison.OrdinalIgnoreCase);
+            var readyDeadline = DateTime.UtcNow.AddSeconds(30);
+            while (!await host.Mounts.IsReadyForShutdownAsync(def.Id) && DateTime.UtcNow < readyDeadline)
+                await Task.Delay(250);
+            Assert.True(await host.Mounts.IsReadyForShutdownAsync(def.Id), "Completed imports and an exited demo must become ready for guarded shutdown.");
         }
         finally
         {

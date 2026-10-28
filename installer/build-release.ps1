@@ -29,11 +29,11 @@ New-Item -ItemType Directory -Force $stage | Out-Null
 
 # 1. Verify the modified driver's version and recorded binary checksum before shipping it.
 $rclone = Join-Path $repo "tools\rclone\rclone.exe"
-$sums = Get-Item (Join-Path $repo "tools\rclone\SHA256SUMS.cloudssd.1") -ErrorAction SilentlyContinue
-if (-not (Test-Path $rclone) -or -not $sums) { throw "Native driver or SHA256SUMS.cloudssd.1 missing. See native\rclone\README.md." }
+$sums = Get-Item (Join-Path $repo "tools\rclone\SHA256SUMS.cloudssd.2") -ErrorAction SilentlyContinue
+if (-not (Test-Path $rclone) -or -not $sums) { throw "Native driver or SHA256SUMS.cloudssd.2 missing. See native\rclone\README.md." }
 $rcloneVersion = ($sums.Name -replace '^SHA256SUMS\.', '')
 $nativeVersion = (& $rclone version | Select-Object -First 1)
-if ($nativeVersion -notmatch 'v1\.75\.2-cloudssd\.1') { throw "Build the deferred-hydration driver first; see native\rclone\README.md." }
+if ($nativeVersion -notmatch 'v1\.75\.2-cloudssd\.2') { throw "Build the deferred-hydration driver first; see native\rclone\README.md." }
 $expectedNativeHash = ((Get-Content $sums.FullName | Select-Object -First 1) -split '\s+')[0]
 if ((Get-FileHash $rclone -Algorithm SHA256).Hash -ne $expectedNativeHash) { throw "Native driver SHA256 mismatch." }
 $nativeVersion | Write-Host
@@ -60,7 +60,7 @@ Copy-Item $rclone $toolDir -Force
 Copy-Item $sums.FullName $toolDir -Force
 $hash = (Get-FileHash (Join-Path $toolDir "rclone.exe") -Algorithm SHA256).Hash.ToLower()
 Set-Content (Join-Path $toolDir "README.txt") @"
-CloudSSD native drive engine: modified rclone v1.75.2, patch revision 1 (https://rclone.org).
+CloudSSD native drive engine: modified rclone v1.75.2, patch revision 2 (https://rclone.org).
 MIT License, Copyright (C) 2012 by Nick Craig-Wood.
 Built from upstream v1.75.2 with CloudSSD's deferred-hydration patch. This is a modified build.
 See docs/NATIVE_RCLONE.md for source, patch, tests and build instructions. SHA256 of rclone.exe: $hash

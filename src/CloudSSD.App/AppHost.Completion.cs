@@ -83,9 +83,7 @@ public sealed partial class AppHost
             {
                 if (Mounts.Get(def.Id) is not { State: MountState.Mounted })
                     return (false, "Waiting for cloud drives to be available for a safe write check.");
-                var stats = await Mounts.StatsAsync(def.Id, ct);
-                if (stats == null || stats.OpenFiles == null) return (false, "Waiting for a reliable drive status.");
-                if (stats.UploadsQueued + stats.UploadsInProgress > 0 || stats.OpenFiles > 0 || stats.ErroredFiles > 0 || stats.OutOfSpace)
+                if (!await Mounts.IsReadyForShutdownAsync(def.Id, ct))
                     return (false, "Waiting for open files and pending cloud writes to finish.");
             }
             // The agent may own the job after a desktop crash/close. Bring back the cancellable UI before counting down.
