@@ -4,7 +4,7 @@
 
 CloudSSD connects cloud folders to a Windows drive letter and caches the files you read on a local NTFS disk. Games and applications run on your own PC. Files already cached can be read locally; uncached files still depend on your internet connection and cloud provider.
 
-**Current release: CloudSSD 1.0.0 Windows x64 preview.**
+**Current release: CloudSSD 1.0.0 for Windows x64.**
 
 - [Download the Windows application ZIP](https://github.com/alrayat/CloudSSD/releases/download/v1.0.0/CloudSSD-1.0.0-win-x64.zip)
 - [Release page and checksum file](https://github.com/alrayat/CloudSSD/releases/tag/v1.0.0)
@@ -22,7 +22,7 @@ Download **CloudSSD-1.0.0-win-x64.zip** under the release's **Assets**. It conta
 - [Pages and features](#pages-and-features)
 - [Close, update and uninstall](#close-update-and-uninstall)
 - [Troubleshooting](#troubleshooting)
-- [What prerelease means](#what-prerelease-means)
+- [Release status and verification](#release-status-and-verification)
 - [Build from source](#build-from-source)
 - [Documentation, support and licensing](#documentation-support-and-licensing)
 
@@ -183,14 +183,14 @@ For a portable copy, safely close the app and its mounts before removing the ext
 | Google sign-in fails | Use your own OAuth client and check Drive API/consent configuration in the setup guide. |
 | Hybrid mode reports symbolic-link failure | Use another execution mode, or enable the required Windows privileges yourself. |
 | Cold launch is slow | Check actual provider speed. Prepare/cache data or use Full Local with enough local space. |
-| Drive is busy or import cannot unmount | Close readers, wait for uploads and retry. The preview has a known import-shutdown issue. |
+| Drive is busy or import cannot unmount | Close readers, wait for uploads and retry. This release has a known import-shutdown issue. |
 | Disk space is low | Review cache budget/reserve and staging usage. Keep pending-upload data; use the app's guarded cleanup. |
 
 See [detailed troubleshooting](docs/TROUBLESHOOTING.md). Export a sanitized report from Diagnostics when reporting a problem; keep credentials and private profiles out of issues.
 
-## What prerelease means
+## Release status and verification
 
-GitHub marks this version **prerelease** because it is a preview with incomplete acceptance. The label does not block downloading or installing the package.
+CloudSSD 1.0.0 is published as a regular GitHub release. The verification below records its tested coverage and remaining issues.
 
 The recorded verification passed the production build, **153 unit tests**, **79 desktop checks**, **24 selected integration tests** and four native runtime packages. **One demo-import test failed at shutdown:** file verification, resume and launch succeeded, but the driver still reported four open files and refused to unmount. The safe-unmount guard remains enabled.
 
