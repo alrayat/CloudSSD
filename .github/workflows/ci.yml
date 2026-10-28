@@ -1,0 +1,25 @@
+name: CloudSSD checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Source safety and identity
+        run: python scripts/check-source.py
+      - name: Build
+        run: dotnet build CloudSSD.slnx -c Release --nologo
+      # Unit tests only: the integration tests mount real drives and need WinFsp + rclone (see TEST_REPORT.md).
+      - name: Unit tests
+        run: dotnet test tests/CloudSSD.Tests -c Release --no-build --nologo

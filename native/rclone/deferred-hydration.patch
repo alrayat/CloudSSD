@@ -1,0 +1,349 @@
+diff --git a/vfs/vfscache/cache.go b/vfs/vfscache/cache.go
+index ca79f22..397468f 100644
+--- a/vfs/vfscache/cache.go
++++ b/vfs/vfscache/cache.go
+@@ -41,17 +41,18 @@ import (
+ // Cache opened files
+ type Cache struct {
+ 	// read only - no locking needed to read these
+-	ctx        context.Context      // context for cache lifetime
+-	fremote    fs.Fs                // fs for the remote we are caching
+-	fcache     fs.Fs                // fs for the cache directory
+-	fcacheMeta fs.Fs                // fs for the cache metadata directory
+-	opt        *vfscommon.Options   // vfs Options
+-	root       string               // root of the cache directory
+-	metaRoot   string               // root of the cache metadata directory
+-	hashType   hash.Type            // hash to use locally and remotely
+-	hashOption *fs.HashesOption     // corresponding OpenOption
+-	writeback  *writeback.WriteBack // holds Items for writeback
+-	avFn       AddVirtualFn         // if set, can be called to add dir entries
++	ctx            context.Context      // context for cache lifetime
++	fremote        fs.Fs                // fs for the remote we are caching
++	fcache         fs.Fs                // fs for the cache directory
++	fcacheMeta     fs.Fs                // fs for the cache metadata directory
++	opt            *vfscommon.Options   // vfs Options
++	root           string               // root of the cache directory
++	metaRoot       string               // root of the cache metadata directory
++	hashType       hash.Type            // hash to use locally and remotely
++	hashOption     *fs.HashesOption     // corresponding OpenOption
++	writeback      *writeback.WriteBack // holds Items for writeback
++	avFn           AddVirtualFn         // if set, can be called to add dir entries
++	hydrationSlots chan struct{}        // reserve upload capacity for files already fully cached
+ 
+ 	mu            sync.Mutex       // protects the following variables
+ 	cond          sync.Cond        // cond lock for synchronous cache cleaning
+@@ -117,19 +118,20 @@ func New(ctx context.Context, fremote fs.Fs, opt *vfscommon.Options, avFn AddVir
+ 
+ 	// Create the cache object
+ 	c := &Cache{
+-		ctx:        ctx,
+-		fremote:    fremote,
+-		fcache:     fdata,
+-		fcacheMeta: fmeta,
+-		opt:        opt,
+-		root:       dataOSPath,
+-		metaRoot:   metaOSPath,
+-		item:       make(map[string]*Item),
+-		errItems:   make(map[string]error),
+-		hashType:   hashType,
+-		hashOption: hashOption,
+-		writeback:  writeback.New(ctx, opt),
+-		avFn:       avFn,
++		ctx:            ctx,
++		fremote:        fremote,
++		fcache:         fdata,
++		fcacheMeta:     fmeta,
++		opt:            opt,
++		root:           dataOSPath,
++		metaRoot:       metaOSPath,
++		item:           make(map[string]*Item),
++		errItems:       make(map[string]error),
++		hashType:       hashType,
++		hashOption:     hashOption,
++		writeback:      writeback.New(ctx, opt),
++		avFn:           avFn,
++		hydrationSlots: make(chan struct{}, max(1, fs.GetConfig(ctx).Transfers/2)),
+ 	}
+ 
+ 	// load in the cache and metadata off disk
+@@ -169,6 +171,13 @@ func (c *Cache) Stats() (out rc.Params) {
+ 	out["erroredFiles"] = len(c.errItems)
+ 	out["bytesUsed"] = c.used
+ 	out["outOfSpace"] = c.outOfSpace
++	openFiles := 0
++	for _, item := range c.item {
++		if item.openCount.Load() > 0 {
++			openFiles++
++		}
++	}
++	out["openFiles"] = openFiles
+ 
+ 	return out
+ }
+diff --git a/vfs/vfscache/item.go b/vfs/vfscache/item.go
+index f25f907..366f778 100644
+--- a/vfs/vfscache/item.go
++++ b/vfs/vfscache/item.go
+@@ -7,10 +7,13 @@ import (
+ 	"fmt"
+ 	"io"
+ 	"os"
++	"path/filepath"
+ 	"sync"
++	"sync/atomic"
+ 	"time"
+ 
+ 	"github.com/rclone/rclone/fs"
++	"github.com/rclone/rclone/fs/config"
+ 	"github.com/rclone/rclone/fs/fserrors"
+ 	"github.com/rclone/rclone/fs/operations"
+ 	"github.com/rclone/rclone/lib/file"
+@@ -61,6 +64,7 @@ type Item struct {
+ 	cond            sync.Cond                // synchronize with cache cleaner
+ 	name            string                   // name in the VFS
+ 	opens           int                      // number of times file is open
++	openCount       atomic.Int32             // published open count for non-blocking drive telemetry
+ 	downloaders     *downloaders.Downloaders // a record of the downloaders in action - may be nil
+ 	o               fs.Object                // object we are caching - may be nil
+ 	fd              *os.File                 // handle we are using to read and write to the file
+@@ -70,6 +74,7 @@ type Item struct {
+ 	modified        bool                     // set if the file has been modified since the last Open
+ 	beingReset      bool                     // cache cleaner is resetting the cache file, access not allowed
+ 	graceTimer      *time.Timer              // timer for delayed close after grace period
++	mergeCancel     context.CancelFunc       // interrupt deferred hydration when the file is reopened
+ 	closing         chan struct{}            // non-nil while a grace-period close is tearing the handle down, closed when done
+ }
+ 
+@@ -212,18 +217,32 @@ func (item *Item) load() (exists bool, err error) {
+ // call with the lock held
+ func (item *Item) _save() (err error) {
+ 	osPathMeta := item.c.toOSPathMeta(item.name) // No locking in Cache
+-	out, err := os.Create(osPathMeta)
++	// A torn metadata write loses the only record of valid sparse ranges.
++	// Flush a sibling transaction before replacing the last valid version.
++	txnDir := filepath.Join(config.GetCacheDir(), "metadata-transactions")
++	if err = os.MkdirAll(txnDir, 0700); err != nil {
++		return err
++	}
++	out, err := os.CreateTemp(txnDir, "metadata-*")
+ 	if err != nil {
+ 		return fmt.Errorf("vfs cache item: failed to write metadata: %w", err)
+ 	}
+-	defer fs.CheckClose(out, &err)
++	tmp := out.Name()
++	defer os.Remove(tmp)
++	defer out.Close()
+ 	encoder := json.NewEncoder(out)
+ 	encoder.SetIndent("", "\t")
+ 	err = encoder.Encode(item.info)
+ 	if err != nil {
+ 		return fmt.Errorf("vfs cache item: failed to encode metadata: %w", err)
+ 	}
+-	return nil
++	if err = out.Sync(); err != nil {
++		return err
++	}
++	if err = out.Close(); err != nil {
++		return err
++	}
++	return os.Rename(tmp, osPathMeta)
+ }
+ 
+ // truncate the item to the given size, creating it if necessary
+@@ -529,6 +548,9 @@ func (item *Item) open(o fs.Object) (err error) {
+ 	// from a fully closed item rather than racing the fd teardown.
+ 	for item.closing != nil {
+ 		closing := item.closing
++		if item.mergeCancel != nil {
++			item.mergeCancel()
++		}
+ 		item.mu.Unlock()
+ 		<-closing
+ 		item.mu.Lock()
+@@ -547,6 +569,7 @@ func (item *Item) open(o fs.Object) (err error) {
+ 	}
+ 
+ 	item.opens++
++	item.openCount.Store(int32(item.opens))
+ 	if item.opens != 1 {
+ 		return nil
+ 	}
+@@ -584,6 +607,7 @@ func (item *Item) open(o fs.Object) (err error) {
+ 		err = item._truncateToCurrentSize()
+ 		if err != nil {
+ 			item.opens--
++			item.openCount.Store(int32(item.opens))
+ 			return fmt.Errorf("vfs cache item: recreate cache file failed: %w", err)
+ 		}
+ 	}
+@@ -593,6 +617,7 @@ func (item *Item) open(o fs.Object) (err error) {
+ 		item._remove("item.open failed on _createFile, remove cache data/metadata files")
+ 		item.fd = nil
+ 		item.opens--
++		item.openCount.Store(int32(item.opens))
+ 		return fmt.Errorf("vfs cache item: create cache file failed: %w", err)
+ 	}
+ 	// Unlock the Item.mu so we can call some methods which take Cache.mu
+@@ -692,9 +717,72 @@ func (item *Item) _store(ctx context.Context, storeFn StoreFn) (err error) {
+ func (item *Item) store(ctx context.Context, storeFn StoreFn) (err error) {
+ 	item.mu.Lock()
+ 	defer item.mu.Unlock()
++	// Hydration belongs to the bounded writeback queue, never a filesystem close.
++	// Do not upload sparse holes as zeros: obtain every missing byte first.
++	if item.info.Dirty && item.o != nil && !item.info.Rs.Present(ranges.Range{Pos: 0, Size: item.info.Size}) {
++		if item.opens != 0 {
++			return errors.New("vfs cache: file reopened before deferred hydration")
++		}
++		// Slow cold reads must not consume every upload worker. Leave at least
++		// half the configured workers free for files that are already complete.
++		select {
++		case item.c.hydrationSlots <- struct{}{}:
++			defer func() { <-item.c.hydrationSlots }()
++		default:
++			return writeback.ErrDeferred
++		}
++		if err = item._hydrateForStore(ctx); err != nil {
++			return err
++		}
++	}
+ 	return item._store(ctx, storeFn)
+ }
+ 
++// _hydrateForStore fills sparse ranges while holding an internal cache handle.
++// The caller holds item.mu. Reopening cancels hydration and waits only for
++// cancellation/handle cleanup, so reads of cached bytes do not wait on the cloud.
++func (item *Item) _hydrateForStore(ctx context.Context) (err error) {
++	ctx, cancel := context.WithCancel(ctx)
++	item.mergeCancel = cancel
++	item.closing = make(chan struct{})
++	defer func() {
++		cancel()
++		item.mergeCancel = nil
++		close(item.closing)
++		item.closing = nil
++	}()
++	if err = ctx.Err(); err != nil {
++		return err
++	}
++	item.fd, err = file.OpenFile(item.c.toOSPath(item.name), os.O_RDWR, 0600)
++	if err != nil {
++		return fmt.Errorf("vfs cache: open for deferred hydration: %w", err)
++	}
++	item.downloaders = downloaders.New(ctx, item, item.c.opt, item.name, item.o)
++	err = item._ensure(0, item.info.Size)
++	if err == nil && !item.info.Rs.Present(ranges.Range{Pos: 0, Size: item.info.Size}) {
++		err = errors.New("vfs cache: missing ranges remain after deferred hydration; refusing upload")
++	}
++	dls := item.downloaders
++	item.downloaders = nil
++	unlockMutexForCall(&item.mu, func() {
++		if closeErr := dls.Close(nil); err == nil {
++			err = closeErr
++		}
++	})
++	if closeErr := item.fd.Close(); err == nil {
++		err = closeErr
++	}
++	item.fd = nil
++	if saveErr := item._save(); err == nil {
++		err = saveErr
++	}
++	if err != nil {
++		return fmt.Errorf("vfs cache: deferred hydration: %w", err)
++	}
++	return ctx.Err()
++}
++
+ // Close the cache file
+ func (item *Item) Close(storeFn StoreFn) (err error) {
+ 	// defer log.Trace(item.o, "Item.Close")("err=%v", &err)
+@@ -706,6 +794,7 @@ func (item *Item) Close(storeFn StoreFn) (err error) {
+ 
+ 	item.info.ATime = time.Now()
+ 	item.opens--
++	item.openCount.Store(int32(item.opens))
+ 
+ 	if item.opens < 0 {
+ 		return os.ErrClosed
+@@ -770,10 +859,9 @@ func (item *Item) _actualClose(storeFn StoreFn, syncWriteBack bool) (err error)
+ 	// If the file is dirty ensure any segments not transferred
+ 	// are brought in first.
+ 	//
+-	// FIXME It would be nice to do this asynchronously however it
+-	// would require keeping the downloaders alive after the item
+-	// has been closed
+-	if item.info.Dirty && item.o != nil {
++	// Deferred writeback hydrates in store(), under the bounded upload queue.
++	// Only synchronous writeback may wait on remote data during close.
++	if syncWriteBack && item.info.Dirty && item.o != nil {
+ 		err = item._ensure(0, item.info.Size)
+ 		if err != nil {
+ 			return fmt.Errorf("vfs cache: failed to download missing parts of cache file: %w", err)
+@@ -809,6 +897,11 @@ func (item *Item) _actualClose(storeFn StoreFn, syncWriteBack bool) (err error)
+ 	if item.fd == nil {
+ 		checkErr(errors.New("vfs cache item: internal error: didn't Open file"))
+ 	} else {
++		if item.info.Dirty && cloudSSDProgressPath(item.name) {
++			if backupErr := item.cloudSSDCheckpoint(); backupErr != nil {
++				fs.Logf(item.name, "local Steam progress checkpoint unavailable: %v", backupErr)
++			}
++		}
+ 		checkErr(item.fd.Close())
+ 		item.fd = nil
+ 	}
+diff --git a/vfs/vfscache/writeback/writeback.go b/vfs/vfscache/writeback/writeback.go
+index 3e35751..415326f 100644
+--- a/vfs/vfscache/writeback/writeback.go
++++ b/vfs/vfscache/writeback/writeback.go
+@@ -22,6 +22,10 @@ const (
+ // PutFn is the interface that item provides to store the data
+ type PutFn func(context.Context) error
+ 
++// ErrDeferred yields this worker to a ready file without treating pending
++// hydration as an upload failure. Dirty data remains queued and persisted.
++var ErrDeferred = errors.New("vfs cache: waiting for a hydration slot")
++
+ // Handle is returned for callers to keep track of writeback items
+ type Handle uint64
+ 
+@@ -362,7 +366,11 @@ func (wb *WriteBack) upload(ctx context.Context, wbItem *writeBackItem) {
+ 	wbItem.uploading = false
+ 	wb.uploads--
+ 
+-	if err != nil {
++	if errors.Is(err, ErrDeferred) {
++		wbItem.tries--
++		wb._pushItem(wbItem)
++		wb.items._update(wbItem, time.Now().Add(time.Second))
++	} else if err != nil {
+ 		// FIXME should this have a max number of transfer attempts?
+ 		wbItem.delay *= 2
+ 		if wbItem.delay > maxUploadDelay {
+diff --git a/vfs/file.go b/vfs/file.go
+index 11d63d8..52ad4b6 100644
+--- a/vfs/file.go
++++ b/vfs/file.go
+@@ -670,14 +670,21 @@ func (f *File) Remove() (err error) {
+ 		return EROFS
+ 	}
+ 
++	f.muRW.Lock() // exclude new RW opens while preserving and removing cache data
++	if d.vfs.cache != nil {
++		if err = d.vfs.cache.PreserveProtectedDelete(f.CachePath()); err != nil {
++			f.muRW.Unlock()
++			return err // Never discard dirty staging bytes if recovery could not be saved.
++		}
++	}
++
+ 	// Remove the object from the cache
+ 	wasWriting := false
+ 	if d.vfs.cache != nil && d.vfs.cache.Exists(f.CachePath()) {
+ 		wasWriting = d.vfs.cache.Remove(f.CachePath())
+ 	}
+ 
+-	f.muRW.Lock() // muRW must be locked before mu to avoid
+-	f.mu.Lock()   // deadlock in RWFileHandle.openPending and .close
++	f.mu.Lock() // muRW must be locked before mu, as in RWFileHandle open/close
+ 	if f.o != nil {
+ 		err = f.o.Remove(f.ctx)
+ 	}

@@ -1,0 +1,39 @@
+<Window x:Class="CloudSSD.Desktop.Views.AddDriveWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add virtual drive" Width="620" Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="30,26">
+        <TextBlock Text="NEW VIRTUAL DRIVE" Style="{StaticResource Label}" Margin="0,0,0,14" />
+        <TextBlock Text="Add virtual drive" Style="{StaticResource H1}" />
+        <TextBlock Text="Choose which cloud folder appears as a Windows drive letter in File Explorer." Style="{StaticResource Caption}" Margin="0,0,0,16" />
+        <TextBlock Text="ACCOUNT" Style="{StaticResource Label}" />
+        <ComboBox x:Name="AccountBox" Margin="0,0,0,12" DisplayMemberPath="Name" SelectionChanged="AccountChanged" />
+        <TextBlock Text="CLOUD FOLDER (empty = whole account)" Style="{StaticResource Label}" />
+        <DockPanel Margin="0,0,0,6">
+            <Button DockPanel.Dock="Right" Content="Up" Click="Up" Margin="8,0,0,0" />
+            <Button DockPanel.Dock="Right" Content="List" Click="Browse" Margin="8,0,0,0" />
+            <TextBox x:Name="PathBox" />
+        </DockPanel>
+        <ListBox x:Name="Folders" Height="150" Background="{StaticResource Surface}" BorderBrush="{StaticResource BorderBrush}" Foreground="{StaticResource Text}"
+                 MouseDoubleClick="FolderOpen" Margin="0,0,0,4" />
+        <TextBlock x:Name="BrowseStatus" Style="{StaticResource Caption}" Margin="0,0,0,12" Text="Double-click a folder to open it. Only folder names are listed (no file data is downloaded)." />
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="140" /></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="DISPLAY NAME" Style="{StaticResource Label}" />
+                <TextBox x:Name="NameBox" />
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="DRIVE LETTER" Style="{StaticResource Label}" />
+                <ComboBox x:Name="LetterBox" />
+            </StackPanel>
+        </Grid>
+        <CheckBox x:Name="ReadOnlyBox" Content="Read-only (protects cloud originals; games that write into their folder need Hybrid mode)" Margin="0,14,0,0" />
+        <CheckBox x:Name="AutoBox" Content="Mount automatically when CloudSSD starts" IsChecked="True" />
+        <TextBlock x:Name="Status" Style="{StaticResource Caption}" Foreground="{StaticResource Danger}" Margin="0,10,0,0" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button Style="{StaticResource Primary}" Content="Add and mount" Click="Ok" />
+            <Button Content="Cancel" IsCancel="True" Margin="0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

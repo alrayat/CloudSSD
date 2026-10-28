@@ -1,0 +1,56 @@
+<Window x:Class="CloudSSD.Desktop.Views.ConnectTeraBoxWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Connect TeraBox" Width="600" Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="30,26">
+        <TextBlock Text="ACCOUNT CONNECTION" Style="{StaticResource Label}" Margin="0,0,0,14" />
+        <TextBlock Text="Connect TeraBox" Style="{StaticResource H1}" />
+        <TextBlock Style="{StaticResource Caption}" Margin="0,0,0,16" TextWrapping="Wrap"
+                   Text="Uses TeraBox's official Open Platform. You approve access in the TeraBox app on your phone; CloudSSD never sees your TeraBox password. Your TeraBox appears as drive T: in File Explorer." />
+
+        <!-- No developer credentials yet -->
+        <Border x:Name="NeedKeysBox" CornerRadius="12" BorderThickness="1" BorderBrush="{StaticResource Warning}" Background="{StaticResource Surface}" Padding="14,12">
+            <StackPanel>
+                <TextBlock FontWeight="SemiBold" Foreground="{StaticResource Warning}" Text="TeraBox developer keys are needed first" />
+                <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,8" TextWrapping="Wrap"
+                           Text="TeraBox only lets approved apps use its official API, and gives each app a client_id, client_secret and private_secret. Whoever publishes this copy of CloudSSD (or you, if TeraBox approved your own app) puts them in a terabox-client.json file. This is the recommended way to connect." />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Load terabox-client.json…" Click="LoadKeys" />
+                    <Button Content="TeraBox developer docs" Style="{StaticResource Ghost}" Click="OpenDocs" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Unofficial alternative: the user's own website session -->
+        <Border x:Name="WebBox" CornerRadius="12" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Background="{StaticResource Surface}" Padding="14,12" Margin="0,12,0,0">
+            <StackPanel>
+                <TextBlock FontWeight="SemiBold" Text="No developer keys? Sign in with the TeraBox website (unofficial)" />
+                <TextBlock x:Name="WebRootHint" Style="{StaticResource Caption}" Margin="0,4,0,8" TextWrapping="Wrap" />
+                <Button Content="Sign in with the TeraBox website…" HorizontalAlignment="Left" Click="SignInWeb" />
+            </StackPanel>
+        </Border>
+
+        <!-- Ready to sign in -->
+        <StackPanel x:Name="SignInBox" Visibility="Collapsed">
+            <Button x:Name="SignInButton" Style="{StaticResource Primary}" HorizontalAlignment="Stretch" Padding="14,12" Click="SignIn">
+                <TextBlock Text="Sign in with TeraBox" FontSize="15" />
+            </Button>
+            <TextBlock x:Name="KeyInfo" Style="{StaticResource Caption}" Margin="0,8,0,0" Foreground="{StaticResource Dim}" />
+        </StackPanel>
+
+        <!-- QR code -->
+        <StackPanel x:Name="QrBox" Visibility="Collapsed" Margin="0,16,0,0" HorizontalAlignment="Center">
+            <Border Background="White" CornerRadius="12" Padding="10" HorizontalAlignment="Center">
+                <Image x:Name="QrImage" Width="220" Height="220" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+            </Border>
+            <TextBlock Style="{StaticResource Caption}" Margin="0,10,0,0" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="460"
+                       Text="Open the TeraBox app on your phone, sign in, tap the scan icon and scan this code. Then approve CloudSSD." />
+        </StackPanel>
+
+        <TextBlock x:Name="Status" Style="{StaticResource Caption}" Margin="0,16,0,0" Foreground="{StaticResource Accent}" TextWrapping="Wrap" />
+        <ProgressBar x:Name="Progress" IsIndeterminate="True" Margin="0,8,0,0" Visibility="Collapsed" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button Content="Cancel" Click="Cancel" Margin="0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

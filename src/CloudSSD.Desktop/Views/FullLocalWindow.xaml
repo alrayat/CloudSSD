@@ -1,0 +1,27 @@
+<Window x:Class="CloudSSD.Desktop.Views.FullLocalWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:CloudSSD.Desktop.Views"
+        Title="Install locally" Width="620" Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="30,26">
+        <TextBlock Text="DOWNLOAD TO THIS PC" Style="{StaticResource Label}" Margin="0,0,0,14" />
+        <TextBlock x:Name="TitleText" Style="{StaticResource H1}" />
+        <TextBlock Style="{StaticResource Caption}" Margin="0,0,0,14"
+                   Text="Full Local Fallback copies the whole game to your SSD with rclone (checksummed and resumable — running it again continues where it stopped). Use it when streaming is not viable for this game." />
+        <TextBlock x:Name="Facts" Style="{StaticResource Body}" Margin="0,0,0,12" />
+        <TextBlock Text="DESTINATION FOLDER" Style="{StaticResource Label}" />
+        <DockPanel Margin="0,0,0,8">
+            <Button DockPanel.Dock="Right" Content="Browse…" Click="Browse" Margin="8,0,0,0" />
+            <TextBox x:Name="DestBox" TextChanged="DestChanged" />
+        </DockPanel>
+        <TextBlock x:Name="SpaceText" Style="{StaticResource Caption}" Margin="0,0,0,12" />
+        <CheckBox x:Name="ApproveBox" Checked="ApproveChanged" Unchecked="ApproveChanged" />
+        <local:CompletionActionPicker x:Name="AfterCompletion" />
+        <ProgressBar x:Name="Bar" Maximum="1" Margin="0,14,0,0" Visibility="Collapsed" />
+        <TextBlock x:Name="Status" Style="{StaticResource Caption}" Margin="0,6,0,0" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button x:Name="StartButton" Style="{StaticResource Primary}" Content="Start download" Click="Start" IsEnabled="False" />
+            <Button x:Name="CloseButton" Content="Cancel" Click="CloseClick" Margin="0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

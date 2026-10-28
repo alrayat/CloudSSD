@@ -1,0 +1,57 @@
+<Window x:Class="CloudSSD.Desktop.Views.ImportGameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:CloudSSD.Desktop.Views"
+        Title="Import game to cloud" Width="640" Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="30,26">
+        <TextBlock Text="TRANSFER TO CLOUD" Style="{StaticResource Label}" Margin="0,0,0,14" />
+        <TextBlock Text="Import a game into cloud storage" Style="{StaticResource H1}" />
+        <TextBlock Style="{StaticResource Caption}" Margin="0,0,0,16" TextWrapping="Wrap"
+                   Text="Copies a game you already installed on this PC to Google Drive or TeraBox, checks the copy, and adds it to your library so it can run from the cloud drive. Your local folder is not changed or deleted." />
+
+        <TextBlock Text="GAME FOLDER ON THIS PC" Style="{StaticResource Label}" />
+        <DockPanel Margin="0,0,0,10">
+            <Button DockPanel.Dock="Right" Content="Browse…" Click="Browse" Margin="8,0,0,0" />
+            <TextBox x:Name="SourceBox" TextChanged="InputsChanged" />
+        </DockPanel>
+
+        <Grid Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="CLOUD DRIVE" Style="{StaticResource Label}" />
+                <ComboBox x:Name="DriveBox" SelectionChanged="InputsChanged" />
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="FOLDER IN THE CLOUD" Style="{StaticResource Label}" />
+                <TextBox x:Name="FolderBox" TextChanged="InputsChanged" />
+                <TextBlock Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,4,0,0"
+                           Text="Use Games/Example or a full path on the selected cloud drive. Include the game's folder name." />
+            </StackPanel>
+        </Grid>
+
+        <CheckBox x:Name="FullVerifyBox" Content="Full verification: download everything again and compare byte by byte (slower)" Margin="0,4,0,0" />
+        <TextBlock Style="{StaticResource Caption}" Margin="22,2,0,0" TextWrapping="Wrap"
+                   Text="Google Drive is always checked with its MD5 checksums. TeraBox has no usable checksums, so without this option only file sizes are compared." />
+
+        <Border x:Name="PlanBox" Visibility="Collapsed" CornerRadius="12" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Background="{StaticResource Surface}" Padding="14,10" Margin="0,14,0,0">
+            <TextBlock x:Name="PlanText" TextWrapping="Wrap" />
+        </Border>
+
+        <local:CompletionActionPicker x:Name="AfterCompletion" />
+        <ProgressBar x:Name="Progress" Height="8" Margin="0,14,0,0" Visibility="Collapsed" Maximum="1" />
+        <TextBlock x:Name="Status" Style="{StaticResource Caption}" Margin="0,8,0,0" Foreground="{StaticResource Accent}" TextWrapping="Wrap" />
+
+        <DockPanel Margin="0,18,0,0">
+            <Button x:Name="RecycleButton" DockPanel.Dock="Left" Content="Move local copy to Recycle Bin…" Style="{StaticResource DangerButton}" Visibility="Collapsed" Click="RecycleLocal" Margin="0" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="CheckButton" Content="Check" Click="Check" />
+                <Button x:Name="ImportButton" Content="Import" Style="{StaticResource Primary}" Click="Import" IsEnabled="False" />
+                <Button x:Name="CloseButton" Content="Cancel" Click="Close" Margin="0" />
+            </StackPanel>
+        </DockPanel>
+    </StackPanel>
+</Window>

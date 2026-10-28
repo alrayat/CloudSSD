@@ -1,0 +1,26 @@
+name: Bug report
+description: Report a reproducible CloudSSD issue.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include tokens, cookies, client secrets, private configs or raw diagnostic archives. Report security vulnerabilities privately to the repository owner."
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Include reproduction steps, expected behavior and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: CloudSSD/native version, Windows version, cache filesystem and provider. State whether a live provider or local fixture was used.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence
+      description: Include only inspected, redacted logs or screenshots.

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl x:Class="CloudSSD.Desktop.Views.SettingsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <UserControl.Resources>
+    <Style x:Key="Field" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+      <Setter Property="Width" Value="140" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+  </UserControl.Resources>
+  <Grid><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+      <WrapPanel Margin="0,0,0,18">
+        <Button Style="{StaticResource Primary}" Content="Save settings" Command="{Binding SaveCommand}" />
+        <Button Content="Open data folder" Command="{Binding OpenDataFolderCommand}" />
+      </WrapPanel>
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel Margin="0,0,14,20">
+      <TabControl>
+        <TabItem Header="Network">
+          <Border Style="{StaticResource Card}">
+            <StackPanel>
+              <TextBlock Text="Network" Style="{StaticResource H2}" />
+<UniformGrid Columns="2">
+              <StackPanel Margin="0,0,20,6">
+              <TextBlock Text="Download speed · Mbps" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding DeclaredMbps, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              <TextBlock Text="{Binding Measured}" Style="{StaticResource Caption}" Margin="0,-6,0,12" />
+              </StackPanel>
+<StackPanel Margin="0,0,20,6">
+              <TextBlock Text="Background prefetch · % of bandwidth" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding BackgroundShare, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              </StackPanel>
+<StackPanel Margin="0,0,20,6">
+              <TextBlock Text="Transfer limit · Mbps (0 = unlimited)" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding HardLimitMbps, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              </StackPanel>
+<StackPanel Margin="0,0,20,6">
+              <TextBlock Text="Provider API requests per second" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding TpsLimit, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              </StackPanel>
+<StackPanel Margin="0,0,20,6">
+              <TextBlock Text="Parallel prefetch requests" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding MaxConcurrency, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              </StackPanel>
+              </UniformGrid>
+            </StackPanel>
+          </Border>
+        </TabItem>
+        <TabItem Header="Prediction engine">
+          <Border Style="{StaticResource Card}">
+            <StackPanel>
+              <TextBlock Text="Prediction engine" Style="{StaticResource H2}" />
+              <CheckBox Content="Predictive prefetching" IsChecked="{Binding PredictionEnabled}" />
+              <CheckBox Content="Record read telemetry (rclone debug log; needed for profiles and hit/miss metrics)" IsChecked="{Binding ReadProfiling}" />
+              <TextBlock Text="MINIMUM PREDICTION CONFIDENCE (0.05 – 0.99)" Style="{StaticResource Label}" Margin="0,12,0,4" />
+              <TextBox Text="{Binding MinConfidence, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              <TextBlock Text="SPECULATIVE PREFETCH BUDGET PER GAME SESSION (GB)" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding SessionBudgetGb, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              <TextBlock Style="{StaticResource Caption}" Text="Predictors whose measured accuracy falls below 25% after 64 evaluated blocks are disabled automatically for that game." />
+            </StackPanel>
+          </Border>
+        </TabItem>
+        <TabItem Header="Startup">
+          <Border Style="{StaticResource Card}">
+            <StackPanel>
+              <TextBlock Text="Startup and security" Style="{StaticResource H2}" />
+              <CheckBox Content="Restore drives when CloudSSD starts" IsChecked="{Binding RestoreMounts}" />
+              <CheckBox Content="Keep drives mounted after closing (default answer)" IsChecked="{Binding KeepMounts}" />
+              <CheckBox Content="Encrypt the rclone config (key protected with Windows DPAPI)" IsChecked="{Binding EncryptConfig}" />
+              <TextBlock Text="LOCAL GAMES FOLDER (Hybrid and Full Local modes)" Style="{StaticResource Label}" Margin="0,12,0,4" />
+              <TextBox Text="{Binding LocalGamesRoot, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+              <TextBlock Text="DATA FOLDER" Style="{StaticResource Label}" />
+              <TextBlock Text="{Binding DataRoot}" FontFamily="{StaticResource MonoFont}" FontSize="12" Foreground="{StaticResource Muted}" />
+            </StackPanel>
+          </Border>
+        </TabItem>
+        <TabItem Header="Advanced VFS">
+          <Border Style="{StaticResource Card}">
+            <StackPanel>
+              <TextBlock Text="Advanced — rclone VFS" Style="{StaticResource H2}" />
+              <TextBlock Text="{Binding RcloneInfo}" Style="{StaticResource Caption}" Margin="0,0,0,10" />
+<UniformGrid Columns="2">
+              <StackPanel Margin="0,0,20,6">
+              <TextBlock Text="CUSTOM RCLONE PATH (empty = bundled)" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding RclonePath, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+              </StackPanel>
+<StackPanel Margin="0,0,20,6">
+              <TextBlock Text="--buffer-size (in-memory read-ahead per open file)" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding BufferSize, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              </StackPanel>
+<StackPanel Margin="0,0,20,6">
+              <TextBlock Text="--vfs-read-ahead (extra on-disk read-ahead)" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding ReadAhead, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              </StackPanel>
+<StackPanel Margin="0,0,20,6">
+              <TextBlock Text="--vfs-read-chunk-size" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding ChunkSize, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              </StackPanel>
+<StackPanel Margin="0,0,20,6">
+              <TextBlock Text="--vfs-read-chunk-streams (0 = sequential chunks)" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding ChunkStreams, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              </StackPanel>
+<StackPanel Margin="0,0,20,6">
+              <TextBlock Text="--vfs-write-back (seconds after close before upload)" Style="{StaticResource Label}" />
+              <TextBox Text="{Binding WriteBackSeconds, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Field}" />
+              </StackPanel>
+              </UniformGrid>
+              <TextBlock Style="{StaticResource Caption}" Text="Measured on this PC: with rclone's default 16 MiB buffer, three 64 KiB random reads downloaded tens of MiB; with 0 they downloaded 256 KiB. CloudSSD defaults to 0 and lets the prediction engine decide what to read ahead." />
+            </StackPanel>
+          </Border>
+        </TabItem>
+      </TabControl>
+    </StackPanel>
+  </ScrollViewer></Grid>
+</UserControl>

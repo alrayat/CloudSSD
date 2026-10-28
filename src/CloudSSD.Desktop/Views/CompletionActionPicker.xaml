@@ -1,0 +1,13 @@
+<UserControl x:Class="CloudSSD.Desktop.Views.CompletionActionPicker"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <StackPanel Margin="0,16,0,12" Background="{StaticResource AccentSoft}">
+  <TextBlock Text="AFTER SUCCESSFUL COMPLETION" Style="{StaticResource Label}" />
+  <ComboBox x:Name="Choice" SelectedIndex="0">
+   <ComboBoxItem Content="Do nothing" /><ComboBoxItem Content="Launch game" />
+   <ComboBoxItem Content="Shut down PC" /><ComboBoxItem Content="Restart PC" />
+  </ComboBox>
+  <TextBlock Text="Power actions wait for cloud writes and show a 60-second countdown. Cancel from After completion in the main window."
+   Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,5,0,0" />
+ </StackPanel>
+</UserControl>

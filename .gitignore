@@ -1,0 +1,33 @@
+# Generated output and local profiles
+**/bin/
+**/obj/
+**/TestResults/
+.work/
+dist/
+.vs/
+.idea/
+.claude/
+*.user
+*.suo
+*.log
+*.trx
+*.db
+*.db-shm
+*.db-wal
+*.key
+rclone.conf
+webview2-terabox/
+benchmarks/results/
+# Downloaded/built prerequisites
+tools/rclone/rclone.exe
+tools/winfsp/*.msi
+tools/webview2/*.exe
+# Credentials: supply locally, never commit
+google-client.json
+terabox-client.json
+client_secret_*.json
+*.pfx
+*.p12
+.env
+.env.*
+!*.example.json

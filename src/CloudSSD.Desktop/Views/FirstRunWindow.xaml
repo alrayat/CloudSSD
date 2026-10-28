@@ -1,0 +1,49 @@
+<Window x:Class="CloudSSD.Desktop.Views.FirstRunWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Welcome to CloudSSD" Width="660" Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner" Icon="../Assets/cloudssd.ico">
+    <StackPanel Margin="30,26">
+        <TextBlock Text="SET UP YOUR WORKSPACE" Style="{StaticResource Label}" Margin="0,0,0,14" />
+        <TextBlock FontSize="24" FontWeight="SemiBold"><Run Text="Welcome to Cloud" /><Run Text="SSD" Foreground="{StaticResource Accent}" /></TextBlock>
+        <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,18"
+                   Text="CloudSSD keeps your games in cloud storage and runs them on this PC, caching the parts they actually read on your SSD. It is not cloud gaming: your own CPU and GPU run the game, and uncached data arrives only as fast as your internet allows." />
+        <TextBlock Text="Prerequisites" Style="{StaticResource H2}" />
+        <ItemsControl x:Name="Deps" Margin="0,0,0,14">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel Margin="0,0,0,6">
+                        <Ellipse DockPanel.Dock="Left" Width="8" Height="8" Margin="0,5,10,0" VerticalAlignment="Top" Fill="{Binding Tone, Converter={StaticResource Tone}}" />
+                        <TextBlock TextWrapping="Wrap"><Run Text="{Binding Key}" FontWeight="SemiBold" /><Run Text="  " /><Run Text="{Binding Value}" Foreground="{StaticResource Muted}" /></TextBlock>
+                    </DockPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Text="Cache location" Style="{StaticResource H2}" />
+        <DockPanel Margin="0,0,0,4">
+            <Button DockPanel.Dock="Right" Content="Browse…" Click="Browse" Margin="8,0,0,0" />
+            <TextBox x:Name="CacheBox" TextChanged="CacheChanged" />
+        </DockPanel>
+        <TextBlock x:Name="CacheInfo" Style="{StaticResource Caption}" Margin="0,0,0,14" />
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="CACHE BUDGET" Style="{StaticResource Label}" />
+                <ComboBox x:Name="BudgetBox" />
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="KEEP FREE FOR WINDOWS (GB)" Style="{StaticResource Label}" />
+                <TextBox x:Name="ReserveBox" Text="8" />
+            </StackPanel>
+            <StackPanel Grid.Column="4">
+                <TextBlock Text="INTERNET SPEED (Mbps)" Style="{StaticResource Label}" />
+                <TextBox x:Name="MbpsBox" Text="70" />
+            </StackPanel>
+        </Grid>
+        <TextBlock x:Name="Estimate" Style="{StaticResource Caption}" Margin="0,10,0,0" />
+        <TextBlock x:Name="Status" Style="{StaticResource Caption}" Foreground="{StaticResource Danger}" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button Style="{StaticResource Primary}" Content="Save and continue" Click="Ok" />
+            <Button Content="Later" Click="Later" Margin="0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

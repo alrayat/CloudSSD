@@ -1,0 +1,35 @@
+<Window x:Class="CloudSSD.Desktop.Views.GameSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Game settings" Width="640" Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="30,26">
+        <TextBlock Text="GAME PREFERENCES" Style="{StaticResource Label}" Margin="0,0,0,14" />
+        <TextBlock x:Name="TitleText" Style="{StaticResource H1}" />
+        <TextBlock Text="NAME" Style="{StaticResource Label}" Margin="0,10,0,4" />
+        <TextBox x:Name="NameBox" Margin="0,0,0,12" />
+        <TextBlock Text="EXECUTABLE (relative to the game folder)" Style="{StaticResource Label}" />
+        <ComboBox x:Name="ExeBox" IsEditable="False" Margin="0,0,0,4" />
+        <TextBlock x:Name="ExeHint" Style="{StaticResource Caption}" Margin="0,0,0,12" />
+        <TextBlock Text="COMMAND-LINE ARGUMENTS" Style="{StaticResource Label}" />
+        <TextBox x:Name="ArgsBox" Margin="0,0,0,12" />
+        <TextBlock Text="WORKING DIRECTORY (relative; empty = executable's folder)" Style="{StaticResource Label}" />
+        <TextBox x:Name="WorkBox" Margin="0,0,0,14" />
+        <TextBlock Text="EXECUTION MODE" Style="{StaticResource Label}" />
+        <RadioButton x:Name="ModeCloud" GroupName="mode">
+            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Text}"><Run Text="Cloud Direct" FontWeight="SemiBold" /><Run Text=" — launch straight from the virtual drive; everything streams through the cache." Foreground="{StaticResource Muted}" /></TextBlock>
+        </RadioButton>
+        <RadioButton x:Name="ModeHybrid" GroupName="mode">
+            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Text}"><Run Text="Hybrid Optimized" FontWeight="SemiBold" /><Run Text=" — executables, DLLs, configs and small files copied to the SSD; large assets streamed via symbolic links. Game writes stay local." Foreground="{StaticResource Muted}" /></TextBlock>
+        </RadioButton>
+        <RadioButton x:Name="ModeLocal" GroupName="mode">
+            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Text}"><Run Text="Full Local" FontWeight="SemiBold" /><Run Text=" — run a complete local copy (use 'Install locally…' first; requires your approval)." Foreground="{StaticResource Muted}" /></TextBlock>
+        </RadioButton>
+        <TextBlock x:Name="ModeHint" Style="{StaticResource Caption}" Margin="0,4,0,12" />
+        <CheckBox x:Name="AwareBox" Content="Game-Aware Mode: accept world-position telemetry from an authorized game plugin" />
+        <TextBlock x:Name="AwareHint" Style="{StaticResource Caption}" Margin="26,2,0,0" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Style="{StaticResource Primary}" Content="Save" Click="Ok" />
+            <Button Content="Cancel" IsCancel="True" Margin="0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

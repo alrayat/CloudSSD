@@ -1,0 +1,17 @@
+<Application x:Class="CloudSSD.Desktop.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:CloudSSD.Desktop.Controls"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/CloudSSD.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <c:BoolToVisibility x:Key="Vis" />
+            <c:BoolToVisibility x:Key="NotVis" Invert="True" />
+            <c:BoolInverse x:Key="NotBool" />
+            <c:ToneToBrush x:Key="Tone" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

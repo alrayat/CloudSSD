@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CloudSSD.Core\CloudSSD.Core.csproj" />
+    <ProjectReference Include="..\CloudSSD.Mount\CloudSSD.Mount.csproj" />
+  </ItemGroup>
+</Project>

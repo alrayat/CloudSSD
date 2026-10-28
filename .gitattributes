@@ -1,0 +1,12 @@
+* text=auto eol=lf
+*.cs text diff=csharp
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.iss text eol=crlf
+*.ico binary
+*.png binary
+*.msi binary
+*.exe binary
+licenses/*.txt -text -whitespace
+tools/rclone/COPYING -text -whitespace
+*.patch -whitespace

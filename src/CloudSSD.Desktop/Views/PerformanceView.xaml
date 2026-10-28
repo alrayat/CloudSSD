@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl x:Class="CloudSSD.Desktop.Views.PerformanceView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:c="clr-namespace:CloudSSD.Desktop.Controls">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="0,0,14,20">
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Right" Text="{Binding RateNow}" Foreground="{StaticResource Accent}" />
+            <TextBlock Text="Transfer rate" Style="{StaticResource H2}" />
+          </DockPanel>
+          <c:Sparkline Values="{Binding Rate}" Height="180" Stroke="{StaticResource Accent}" Capacity="300" Format="{Binding RateFormat}" />
+          <TextBlock Text="Last 5 minutes · rclone core/stats (all transfers on mounted drives)" Style="{StaticResource Caption}" />
+        </StackPanel>
+      </Border>
+      <UniformGrid Columns="3">
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <StackPanel Margin="0,0,0,10"><TextBlock Text="Cache hit rate" Style="{StaticResource H2}" Margin="0,0,0,6" /><TextBlock FontSize="12" Text="{Binding HitNow}" Foreground="{StaticResource Success}" /></StackPanel>
+            <c:Sparkline Values="{Binding Hit}" Height="140" Stroke="{StaticResource Success}" Capacity="300" MaxValue="1" />
+            <TextBlock Text="Share of application reads already in the local cache, per second" Style="{StaticResource Caption}" />
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <StackPanel Margin="0,0,0,10"><TextBlock Text="Average read wait" Style="{StaticResource H2}" Margin="0,0,0,6" /><TextBlock FontSize="12" Text="{Binding WaitNow}" Foreground="{StaticResource Warning}" /></StackPanel>
+            <c:Sparkline Values="{Binding Wait}" Height="140" Stroke="{StaticResource Warning}" Capacity="300" Format="{Binding MsFormat}" />
+            <TextBlock Text="Time applications waited per read; cloud misses dominate this" Style="{StaticResource Caption}" />
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <StackPanel Margin="0,0,0,10"><TextBlock Text="Application reads" Style="{StaticResource H2}" Margin="0,0,0,6" /><TextBlock FontSize="12" Text="{Binding ReadsNow}" Foreground="{StaticResource Purple}" /></StackPanel>
+            <c:Sparkline Values="{Binding Reads}" Height="140" Stroke="{StaticResource Purple}" Capacity="300" Format="{Binding CountFormat}" />
+            <TextBlock Text="Reads per second on the virtual drives (prefetch excluded)" Style="{StaticResource Caption}" />
+          </StackPanel>
+        </Border>
+      </UniformGrid>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <TextBlock Text="Totals since start" Style="{StaticResource H2}" />
+            <ItemsControl ItemsSource="{Binding Totals}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <DockPanel Margin="0,3">
+                    <TextBlock Text="{Binding Key}" Width="220" Foreground="{StaticResource Dim}" />
+                    <TextBlock Text="{Binding Value}" TextWrapping="Wrap" Foreground="{Binding Tone, Converter={StaticResource Tone}}" />
+                  </DockPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Style="{StaticResource Card}">
+          <StackPanel>
+            <DockPanel>
+              <TextBlock DockPanel.Dock="Right" Text="{Binding CacheNow}" Foreground="{StaticResource Accent}" />
+              <TextBlock Text="Cache on disk" Style="{StaticResource H2}" />
+            </DockPanel>
+            <c:Sparkline Values="{Binding Cache}" Height="90" Stroke="{StaticResource Accent}" Capacity="300" Format="{Binding BytesFormat}" />
+            <TextBlock Text="Recent game sessions" Style="{StaticResource H2}" Margin="0,16,0,8" />
+            <TextBlock Text="No recorded sessions yet." Style="{StaticResource Caption}" Visibility="{Binding SessionHistory.Count, Converter={StaticResource NotVis}}" />
+            <ItemsControl ItemsSource="{Binding SessionHistory}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Margin="0,0,0,8">
+                    <TextBlock Text="{Binding Key}" FontWeight="SemiBold" FontSize="12" />
+                    <TextBlock Text="{Binding Value}" Style="{StaticResource Caption}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

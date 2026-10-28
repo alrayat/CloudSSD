@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/CloudSSD.Benchmarks/CloudSSD.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/CloudSSD.Agent/CloudSSD.Agent.csproj" />
+    <Project Path="src/CloudSSD.App/CloudSSD.App.csproj" />
+    <Project Path="src/CloudSSD.Cache/CloudSSD.Cache.csproj" />
+    <Project Path="src/CloudSSD.Cli/CloudSSD.Cli.csproj" />
+    <Project Path="src/CloudSSD.Core/CloudSSD.Core.csproj" />
+    <Project Path="src/CloudSSD.Desktop/CloudSSD.Desktop.csproj" />
+    <Project Path="src/CloudSSD.Diagnostics/CloudSSD.Diagnostics.csproj" />
+    <Project Path="src/CloudSSD.Games/CloudSSD.Games.csproj" />
+    <Project Path="src/CloudSSD.Mount/CloudSSD.Mount.csproj" />
+    <Project Path="src/CloudSSD.Providers/CloudSSD.Providers.csproj" />
+    <Project Path="src/CloudSSD.SimCloud/CloudSSD.SimCloud.csproj" />
+    <Project Path="src/CloudSSD.Streaming/CloudSSD.Streaming.csproj" />
+    <Project Path="src/CloudSSD.TeraBox/CloudSSD.TeraBox.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CloudSSD.DesktopChecks/CloudSSD.DesktopChecks.csproj" />
+    <Project Path="tests/CloudSSD.IntegrationTests/CloudSSD.IntegrationTests.csproj" />
+    <Project Path="tests/CloudSSD.Tests/CloudSSD.Tests.csproj" />
+    <Project Path="tests/CloudSSD.DemoGame/CloudSSD.DemoGame.csproj" />
+  </Folder>
+</Solution>

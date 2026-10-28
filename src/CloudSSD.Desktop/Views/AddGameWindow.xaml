@@ -1,0 +1,25 @@
+<Window x:Class="CloudSSD.Desktop.Views.AddGameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add game" Width="580" Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="30,26">
+        <TextBlock Text="ADD TO YOUR LIBRARY" Style="{StaticResource Label}" Margin="0,0,0,14" />
+        <TextBlock Text="Add a game from a cloud drive" Style="{StaticResource H1}" />
+        <TextBlock Style="{StaticResource Caption}" Margin="0,0,0,16"
+                   Text="Pick the folder that contains an installed game (the folder with its .exe). CloudSSD scans the folder listing and executable headers only — it does not download the game." />
+        <TextBlock Text="DRIVE" Style="{StaticResource Label}" />
+        <ComboBox x:Name="DriveBox" Margin="0,0,0,12" DisplayMemberPath="Label" />
+        <TextBlock Text="GAME FOLDER" Style="{StaticResource Label}" />
+        <DockPanel Margin="0,0,0,12">
+            <Button DockPanel.Dock="Right" Content="Browse…" Click="Browse" Margin="8,0,0,0" />
+            <TextBox x:Name="FolderBox" />
+        </DockPanel>
+        <TextBlock Text="NAME" Style="{StaticResource Label}" />
+        <TextBox x:Name="NameBox" />
+        <TextBlock x:Name="Status" Style="{StaticResource Caption}" Foreground="{StaticResource Danger}" Margin="0,10,0,0" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button Style="{StaticResource Primary}" Content="Add and analyze" Click="Ok" />
+            <Button Content="Cancel" IsCancel="True" Margin="0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

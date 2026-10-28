@@ -1,0 +1,65 @@
+<Window x:Class="CloudSSD.Desktop.Views.ConnectDriveWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Connect Google Drive" Width="640" Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="30,26">
+        <TextBlock Text="ACCOUNT CONNECTION" Style="{StaticResource Label}" Margin="0,0,0,14" />
+        <TextBlock Text="Connect Google Drive" Style="{StaticResource H1}" />
+        <TextBlock Style="{StaticResource Caption}" Margin="0,0,0,16"
+                   Text="Sign in on Google's page in your browser. CloudSSD never sees your Google password; your Google Drive appears as a drive letter in File Explorer." />
+
+        <!-- Key status -->
+        <Border x:Name="KeyFoundBox" Visibility="Collapsed" CornerRadius="12" BorderThickness="1" BorderBrush="{StaticResource Success}" Background="{StaticResource Surface}" Padding="14,10" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Foreground="{StaticResource Success}" FontWeight="SemiBold" Text="✓ Your own Google key is ready — fast and not shared with anyone" />
+                <TextBlock x:Name="KeyFileText" Style="{StaticResource Caption}" Margin="0,4,0,0" />
+                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                    <Button x:Name="TesterButton" Content="Add me as a tester (opens Google)" Style="{StaticResource Ghost}" Padding="0,2" Margin="0,0,18,0" Click="OpenTesters" />
+                    <Button Content="Use a different key file…" Style="{StaticResource Ghost}" Padding="0,2" Click="LoadKey" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Button x:Name="QuickButton" Style="{StaticResource Primary}" HorizontalAlignment="Stretch" Padding="14,12" Click="QuickConnect" Margin="0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE77B;" FontFamily="{StaticResource IconFont}" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                <TextBlock Text="Sign in with Google" FontSize="15" />
+            </StackPanel>
+        </Button>
+        <TextBlock x:Name="ModeText" Style="{StaticResource Caption}" Margin="0,8,0,0" Foreground="{StaticResource Dim}" />
+
+        <!-- Shown when no key file exists yet -->
+        <Border x:Name="GetKeyBox" CornerRadius="12" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Background="{StaticResource Surface}" Padding="14,10" Margin="0,14,0,0">
+            <StackPanel>
+                <TextBlock FontWeight="SemiBold" Text="Getting slow drives or “rate limited”? Use your own free Google key (one time):" TextWrapping="Wrap" />
+                <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,8" TextWrapping="Wrap"
+                           Text="In Google Cloud: Clients → your Desktop client → Download JSON (or create one: Create client → Desktop app). CloudSSD finds the file in Downloads automatically." />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="1. Open Google Cloud" Click="OpenConsole" />
+                    <Button Content="2. I downloaded it — find key" Click="FindKey" />
+                    <Button Content="Choose file…" Style="{StaticResource Ghost}" Click="LoadKey" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <CheckBox x:Name="ReadOnlyBox" Margin="0,16,0,0" Content="Read-only access (protects Drive files; no writing or installing on it)" />
+
+        <CheckBox x:Name="AdvancedBox" Margin="0,10,0,0" Content="Enter a key manually" Checked="AdvancedChanged" Unchecked="AdvancedChanged" />
+        <StackPanel x:Name="AdvancedPanel" Visibility="Collapsed" Margin="26,10,0,0">
+            <TextBlock Text="OAUTH CLIENT ID" Style="{StaticResource Label}" />
+            <TextBox x:Name="ClientIdBox" Margin="0,0,0,10" />
+            <TextBlock Text="OAUTH CLIENT SECRET" Style="{StaticResource Label}" />
+            <PasswordBox x:Name="SecretBox" Margin="0,0,0,10" />
+            <TextBlock Text="ROOT FOLDER ID (optional — limit access to one Drive folder)" Style="{StaticResource Label}" />
+            <TextBox x:Name="RootBox" Margin="0,0,0,10" />
+            <Button x:Name="ConnectButton" Style="{StaticResource Primary}" Content="Connect with this key" HorizontalAlignment="Left" Click="Connect" />
+        </StackPanel>
+
+        <TextBlock x:Name="Status" Style="{StaticResource Caption}" Margin="0,16,0,0" Foreground="{StaticResource Accent}" MaxHeight="120" TextTrimming="CharacterEllipsis" />
+        <Button x:Name="FixButton" Style="{StaticResource Primary}" HorizontalAlignment="Left" Margin="0,10,0,0" Visibility="Collapsed" Click="OpenFix" />
+        <ProgressBar x:Name="Progress" IsIndeterminate="True" Margin="0,8,0,0" Visibility="Collapsed" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button Content="Cancel" Click="Cancel" Margin="0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

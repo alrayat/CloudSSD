@@ -1,0 +1,144 @@
+<UserControl x:Class="CloudSSD.Desktop.Views.SmartCacheView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,14,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.6*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Storage budget" Style="{StaticResource H2}" />
+                        <TextBlock Text="CACHE BUDGET (GB, all drives)" Style="{StaticResource Label}" />
+                        <WrapPanel>
+                            <TextBox Text="{Binding BudgetGb, UpdateSourceTrigger=PropertyChanged}" Width="90" />
+                            <ItemsControl ItemsSource="{Binding Presets}" Margin="10,0,0,0">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding}" ContentStringFormat="{}{0} GB" Padding="10,5" Margin="0,0,6,0"
+                                                Command="{Binding DataContext.PresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </WrapPanel>
+                        <TextBlock Text="PROTECTED FREE SPACE FOR WINDOWS (GB)" Style="{StaticResource Label}" Margin="0,14,0,4" />
+                        <TextBox Text="{Binding ReserveGb, UpdateSourceTrigger=PropertyChanged}" Width="90" HorizontalAlignment="Left" />
+                        <TextBlock Text="EVICT DATA NOT USED FOR (DAYS)" Style="{StaticResource Label}" Margin="0,14,0,4" />
+                        <TextBox Text="{Binding MaxAgeDays, UpdateSourceTrigger=PropertyChanged}" Width="90" HorizontalAlignment="Left" />
+                        <TextBlock Text="CACHE LOCATION" Style="{StaticResource Label}" Margin="0,14,0,4" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Browse…" Command="{Binding ChooseLocationCommand}" Margin="8,0,0,0" />
+                            <TextBox Text="{Binding CacheRoot, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <TextBlock Text="{Binding VolumeInfo}" Style="{StaticResource Caption}" Margin="0,6,0,0" />
+                        <WrapPanel Margin="0,16,0,0">
+                            <Button Style="{StaticResource Primary}" Content="Apply" Command="{Binding ApplyCommand}" />
+                            <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+                            <Button Content="Clear cache of unmounted drives…" Style="{StaticResource DangerButton}" Command="{Binding ClearCacheCommand}" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+                <StackPanel Grid.Column="1">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Usage" Style="{StaticResource H2}" />
+                            <ItemsControl ItemsSource="{Binding Usage}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock Text="{Binding Key}" TextWrapping="Wrap" Foreground="{StaticResource Dim}" Margin="0,0,16,0" /><TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="{Binding Tone, Converter={StaticResource Tone}}" FontWeight="SemiBold" VerticalAlignment="Top" /></Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="{Binding Effective}" Foreground="{StaticResource Accent}" Margin="0,10,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Eviction and safety" Style="{StaticResource H2}" />
+                            <TextBlock Style="{StaticResource Caption}" Text="Eviction is done by rclone: least-recently-used files are removed when the budget or the protected free space is exceeded, and data unused for the maximum age expires. Only cached copies are ever removed — never cloud originals, never files outside the CloudSSD cache folder, never save games." />
+                            <ItemsControl ItemsSource="{Binding Warnings}" Margin="0,8,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate><TextBlock Text="{Binding}" Foreground="{StaticResource Warning}" TextWrapping="Wrap" Margin="0,0,0,6" FontSize="12" /></DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="Pin selected file" Command="{Binding PinCommand}" />
+                            <Button Content="Touch pinned files now" Command="{Binding WarmPinnedCommand}" />
+                        </StackPanel>
+                        <TextBlock Text="Pinned files (kept most-recently-used)" Style="{StaticResource H2}" />
+                    </DockPanel>
+                    <TextBlock Text="No pinned files." Style="{StaticResource Caption}" Visibility="{Binding Pinned.Count, Converter={StaticResource NotVis}}" />
+                    <ItemsControl ItemsSource="{Binding Pinned}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,2">
+                                    <Button DockPanel.Dock="Right" Content="Unpin" Style="{StaticResource Ghost}" Padding="6,2"
+                                            Command="{Binding DataContext.UnpinCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
+                                    <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" ToolTip="{Binding}" FontFamily="{StaticResource MonoFont}" FontSize="12" VerticalAlignment="Center" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Cached files (most recently used first)" Style="{StaticResource H2}" />
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"><StackPanel MinWidth="850">
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="170" /><ColumnDefinition Width="90" /><ColumnDefinition Width="90" /><ColumnDefinition Width="130" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="DRIVE" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="1" Text="FILE" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="2" Text="DOWNLOADED" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="3" Text="ON DISK" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="4" Text="LOGICAL" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="5" Text="LAST ACCESS" Style="{StaticResource Label}" />
+                    </Grid>
+                    <ListBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" Background="Transparent" BorderThickness="0" MaxHeight="420"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Foreground" Value="{StaticResource Text}" />
+                                <Setter Property="Padding" Value="0,3" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="170" /><ColumnDefinition Width="90" /><ColumnDefinition Width="90" /><ColumnDefinition Width="130" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Mount}" Foreground="{StaticResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Path}" ToolTip="{Binding Path}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                                    <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                                        <TextBlock Text="{Binding Cached}" FontSize="12" />
+                                        <ProgressBar Value="{Binding Fraction}" Maximum="1" Height="3" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="3" Text="{Binding Physical}" FontSize="12" />
+                                    <TextBlock Grid.Column="4" Text="{Binding Logical}" FontSize="12" Foreground="{StaticResource Muted}" />
+                                    <TextBlock Grid.Column="5" Text="{Binding LastAccess}" FontSize="12" Foreground="{StaticResource Muted}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    </StackPanel></ScrollViewer>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

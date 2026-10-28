@@ -1,0 +1,83 @@
+<Window x:Class="CloudSSD.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:c="clr-namespace:CloudSSD.Desktop.Controls"
+        xmlns:vm="clr-namespace:CloudSSD.Desktop.ViewModels"
+        xmlns:v="clr-namespace:CloudSSD.Desktop.Views"
+        Title="CloudSSD" Height="880" Width="1440" MinWidth="1040" MinHeight="640"
+        WindowStyle="None" ResizeMode="CanResize" c:WindowFrame.Enabled="True"
+        Background="{StaticResource Bg}" FontFamily="{StaticResource UiFont}" Foreground="{StaticResource Text}"
+        WindowStartupLocation="CenterScreen" Icon="Assets/cloudssd.ico">
+    <WindowChrome.WindowChrome><WindowChrome CaptionHeight="46" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="0" UseAeroCaptionButtons="False" /></WindowChrome.WindowChrome>
+    <Window.InputBindings>
+        <KeyBinding Key="D1" Modifiers="Control" Command="{Binding NavigatePageCommand}" CommandParameter="1" />
+        <KeyBinding Key="D2" Modifiers="Control" Command="{Binding NavigatePageCommand}" CommandParameter="2" />
+        <KeyBinding Key="D3" Modifiers="Control" Command="{Binding NavigatePageCommand}" CommandParameter="3" />
+        <KeyBinding Key="D4" Modifiers="Control" Command="{Binding NavigatePageCommand}" CommandParameter="4" />
+        <KeyBinding Key="D5" Modifiers="Control" Command="{Binding NavigatePageCommand}" CommandParameter="5" />
+        <KeyBinding Key="D6" Modifiers="Control" Command="{Binding NavigatePageCommand}" CommandParameter="6" />
+        <KeyBinding Key="D7" Modifiers="Control" Command="{Binding NavigatePageCommand}" CommandParameter="7" />
+        <KeyBinding Key="D8" Modifiers="Control" Command="{Binding NavigatePageCommand}" CommandParameter="8" />
+    </Window.InputBindings>
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}"><v:DashboardView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CloudDrivesViewModel}"><v:CloudDrivesView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:GameLibraryViewModel}"><v:GameLibraryView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AcceleratorViewModel}"><v:AcceleratorView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SmartCacheViewModel}"><v:SmartCacheView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PerformanceViewModel}"><v:PerformanceView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><v:SettingsView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DiagnosticsViewModel}"><v:DiagnosticsView /></DataTemplate>
+    </Window.Resources>
+    <Border x:Name="WindowFrameBorder" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+        <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}" Value="Maximized"><Setter Property="Margin" Value="7" /></DataTrigger></Style.Triggers></Style></Border.Style>
+        <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="46" /><RowDefinition Height="*" /><RowDefinition Height="44" /></Grid.RowDefinitions>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="228" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <!-- Full-width native caption. Interactive controls opt into chrome hit testing. -->
+            <Border Grid.ColumnSpan="2" Background="{StaticResource Surface}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button x:Name="MinimizeButton" Style="{StaticResource CaptionButton}" Click="OnMinimizeClick" ToolTip="Minimize" AutomationProperties.Name="Minimize"><TextBlock Text="&#xE921;" FontFamily="{StaticResource IconFont}" FontSize="10" /></Button>
+                        <Button x:Name="MaximizeButton" Style="{StaticResource CaptionButton}" Click="OnMaximizeRestoreClick" ToolTip="Maximize / restore" AutomationProperties.Name="Maximize"><TextBlock x:Name="MaximizeIcon" Text="&#xE922;" FontFamily="{StaticResource IconFont}" FontSize="10" /></Button>
+                        <Button x:Name="CloseWindowButton" Style="{StaticResource CaptionCloseButton}" Click="OnCloseClick" ToolTip="Close" AutomationProperties.Name="Close"><TextBlock Text="&#xE8BB;" FontFamily="{StaticResource IconFont}" FontSize="10" /></Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0"><TextBlock Text="CloudSSD" FontWeight="SemiBold" FontSize="12" /><TextBlock Text=" / " Foreground="{StaticResource Dim}" Margin="10,0" /><TextBlock Text="Your cloud. Within reach." FontSize="11" Foreground="{StaticResource Dim}" /></StackPanel>
+                </DockPanel>
+            </Border>
+            <!-- Graphite navigation rail -->
+            <Border Grid.Row="1" Grid.RowSpan="2" Background="{StaticResource Rail}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Margin="24,20,20,12">
+                        <StackPanel Orientation="Horizontal"><Image Source="{StaticResource BrandMark}" Width="35" Height="43" /><StackPanel Margin="13,0,0,0" VerticalAlignment="Center"><TextBlock Text="CloudSSD" FontFamily="{StaticResource DisplayFont}" FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource RailText}" /><TextBlock Text="STORAGE WORKSPACE" FontSize="9" Foreground="{StaticResource RailMuted}" Margin="0,4,0,0" /></StackPanel></StackPanel>
+                        <Border Height="1" Background="{StaticResource RailHover}" Margin="0,20,0,14" />
+                        <TextBlock Text="WORKSPACE" FontSize="10" Foreground="{StaticResource RailMuted}" />
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Margin="24,12,24,16">
+                        <Border Background="{StaticResource RailHover}" CornerRadius="12" Padding="14"><StackPanel><TextBlock Text="Stored in the cloud." FontSize="12" Foreground="{StaticResource RailText}" /><TextBlock Text="Played on your PC." FontSize="12" Foreground="{StaticResource Lime}" Margin="0,4,0,0" /></StackPanel></Border>
+                        <TextBlock Text="{Binding Version}" FontSize="10" Foreground="{StaticResource RailMuted}" Margin="0,18,0,0" />
+                    </StackPanel>
+                    <ListBox x:Name="Navigation" ItemsSource="{Binding Pages}" SelectedItem="{Binding Selected}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{StaticResource NavItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Workspace navigation" ToolTip="Switch pages with Ctrl+1 through Ctrl+8">
+                        <ListBox.ItemTemplate><DataTemplate><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding Icon}" FontFamily="{StaticResource IconFont}" FontSize="16" Width="30" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" /><TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" /></StackPanel></DataTemplate></ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <DockPanel Margin="26,20,26,18">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><ProgressBar Width="70" IsIndeterminate="True" Visibility="{Binding Selected.Busy, Converter={StaticResource Vis}}" Margin="0,0,16,0" /><Border Style="{StaticResource Pill}" Background="{StaticResource AccentSoft}" VerticalAlignment="Center"><TextBlock Text="LOCAL + CLOUD" Foreground="{StaticResource Accent}" FontSize="10" FontWeight="SemiBold" /></Border></StackPanel>
+                    <StackPanel><TextBlock Text="{Binding Selected.Title}" Style="{StaticResource H1}" Margin="0" /><TextBlock Text="{Binding Selected.Description}" Style="{StaticResource Caption}" Margin="0,7,20,0" /></StackPanel>
+                </DockPanel>
+                <Border Grid.Row="1" Margin="32,0,32,18" CornerRadius="10" Padding="15,12" Background="{StaticResource Surface}" BorderBrush="{Binding Selected.MessageTone, Converter={StaticResource Tone}}" BorderThickness="3,0,0,0" Visibility="{Binding Selected.Message, Converter={StaticResource Vis}}"><TextBlock Text="{Binding Selected.Message}" TextWrapping="Wrap" FontSize="12" Foreground="{Binding Selected.MessageTone, Converter={StaticResource Tone}}" /></Border>
+                <ContentControl x:Name="PageContent" Grid.Row="2" Content="{Binding Selected}" Margin="26,0,12,0" Focusable="False" />
+            </Grid>
+            <Border Grid.Row="2" Grid.Column="1" Background="{StaticResource Surface}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+                <DockPanel Margin="24,0,16,0">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="{Binding CompletionStatus}" Command="{Binding ShowCompletionActionsCommand}" Style="{StaticResource Ghost}" Padding="8,5" FontSize="11" /><Button Content="Cancel actions" Command="{Binding CancelCompletionActionsCommand}" Style="{StaticResource Ghost}" FontSize="11" Padding="8,5" ToolTip="Cancel all scheduled completion actions" /></StackPanel>
+                    <TextBlock FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{StaticResource Muted}" ToolTip="{Binding DrivesStatus}"><Run Text="{Binding DrivesStatus}" /><Run Text="  " /><Run Text="{Binding RateStatus}" Foreground="{StaticResource Accent}" /><Run Text="  " /><Run Text="{Binding EngineStatus}" /><Run Text="  " /><Run Text="{Binding GameStatus}" Foreground="{StaticResource Accent}" /></TextBlock>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

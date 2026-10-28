@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl x:Class="CloudSSD.Desktop.Views.DiagnosticsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="0,0,14,20">
+      <WrapPanel Margin="0,0,0,18">
+        <Button Style="{StaticResource Primary}" Content="Export sanitized report…" Command="{Binding ExportCommand}" />
+        <Button Content="Open log folder" Command="{Binding OpenLogsCommand}" />
+        <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+      </WrapPanel>
+      <TextBlock Text="{Binding Summary}" Style="{StaticResource Caption}" Margin="0,0,0,12" />
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <TextBlock Text="Dependencies" Style="{StaticResource H2}" />
+            <ItemsControl ItemsSource="{Binding Dependencies}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <DockPanel Margin="0,0,0,8">
+                    <Ellipse DockPanel.Dock="Left" Width="8" Height="8" Margin="0,5,10,0" VerticalAlignment="Top" Fill="{Binding Tone, Converter={StaticResource Tone}}" />
+                    <StackPanel>
+                      <TextBlock Text="{Binding Key}" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding Value}" Style="{StaticResource Caption}" />
+                    </StackPanel>
+                  </DockPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Style="{StaticResource Card}">
+          <StackPanel>
+            <TextBlock Text="Recovery suggestions" Style="{StaticResource H2}" />
+            <ItemsControl ItemsSource="{Binding Suggestions}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Margin="0,0,0,8">
+                    <TextBlock Text="{Binding Key}" FontWeight="SemiBold" Foreground="{Binding Tone, Converter={StaticResource Tone}}" />
+                    <TextBlock Text="{Binding Value}" Style="{StaticResource Caption}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </Grid>
+      <Border Style="{StaticResource Card}">
+        <Expander Header="Application log" IsExpanded="True">
+          <StackPanel>
+            <DockPanel>
+              <CheckBox DockPanel.Dock="Right" Content="Warnings and errors only" IsChecked="{Binding ErrorsOnly}" />
+              <TextBlock Text="Application log" Style="{StaticResource H2}" />
+            </DockPanel>
+            <TextBlock Text="Nothing to show." Style="{StaticResource Caption}" Visibility="{Binding Logs.Count, Converter={StaticResource NotVis}}" />
+            <ItemsControl ItemsSource="{Binding Logs}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid Margin="0,1">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="70" />
+                      <ColumnDefinition Width="90" />
+                      <ColumnDefinition Width="170" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Time}" FontFamily="{StaticResource MonoFont}" FontSize="11.5" Foreground="{StaticResource Dim}" />
+                    <TextBlock Grid.Column="1" Text="{Binding Level}" FontSize="11.5" Foreground="{Binding Tone, Converter={StaticResource Tone}}" />
+                    <TextBlock Grid.Column="2" Text="{Binding Source}" FontSize="11.5" Foreground="{StaticResource Muted}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Grid.Column="3" Text="{Binding Message}" FontSize="11.5" TextWrapping="Wrap" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Expander>
+      </Border>
+      <Border Style="{StaticResource Card}">
+        <Expander Header="rclone mount log (errors and notices)" IsExpanded="True">
+          <StackPanel>
+            <TextBlock Text="rclone mount log (errors and notices)" Style="{StaticResource H2}" />
+            <ItemsControl ItemsSource="{Binding RcloneLog}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding}" FontFamily="{StaticResource MonoFont}" FontSize="11" TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="0,1" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Expander>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

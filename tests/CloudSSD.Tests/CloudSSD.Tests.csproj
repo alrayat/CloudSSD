@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CloudSSD.Core\CloudSSD.Core.csproj" />
+    <ProjectReference Include="..\..\src\CloudSSD.Diagnostics\CloudSSD.Diagnostics.csproj" />
+    <ProjectReference Include="..\..\src\CloudSSD.Mount\CloudSSD.Mount.csproj" />
+    <ProjectReference Include="..\..\src\CloudSSD.Cache\CloudSSD.Cache.csproj" />
+    <ProjectReference Include="..\..\src\CloudSSD.Streaming\CloudSSD.Streaming.csproj" />
+    <ProjectReference Include="..\..\src\CloudSSD.Games\CloudSSD.Games.csproj" />
+    <ProjectReference Include="..\..\src\CloudSSD.Providers\CloudSSD.Providers.csproj" />
+    <ProjectReference Include="..\..\src\CloudSSD.SimCloud\CloudSSD.SimCloud.csproj" />
+    <ProjectReference Include="..\..\src\CloudSSD.TeraBox\CloudSSD.TeraBox.csproj" />
+  </ItemGroup>
+</Project>

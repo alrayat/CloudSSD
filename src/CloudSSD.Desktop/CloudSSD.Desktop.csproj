@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>CloudSSD</AssemblyName>
+    <RootNamespace>CloudSSD.Desktop</RootNamespace>
+    <ApplicationIcon>Assets\cloudssd.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
+    <!-- Embedded Edge (WebView2) window in which the user signs in to the TeraBox website themselves (unofficial connection). -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CloudSSD.App\CloudSSD.App.csproj" />
+    <!-- CloudSSD.Agent.exe keeps permanent drives available while the window is closed; copied next to the app. -->
+    <ProjectReference Include="..\CloudSSD.Agent\CloudSSD.Agent.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\cloudssd.ico" />
+    <None Include="..\..\tools\rclone\rclone.exe" Link="tools\rclone\rclone.exe" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\tools\rclone\rclone.exe')" />
+    <None Include="..\..\tools\rclone\SHA256SUMS.cloudssd.1" Link="tools\rclone\SHA256SUMS.cloudssd.1" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\tools\rclone\SHA256SUMS.cloudssd.1')" />
+  </ItemGroup>
+</Project>
